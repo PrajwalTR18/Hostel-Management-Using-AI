@@ -343,12 +343,20 @@ HOSTEL_KNOWLEDGE_BASE = [
     }
 ]
 
-def generate_chat_response(query: str, api_url: str = None, api_key: str = None, model_name: str = "gpt-4.1-mini") -> str:
+def generate_chat_response(query: str, api_url: str = None, api_key: str = None, model_name: str = None) -> str:
     """
     Answers student or administrator queries using LLM if configured, 
     or built-in AI retrieval engine.
     """
     q_clean = query.strip().lower()
+
+    if not api_url:
+        api_url = os.environ.get("AI_PROVIDER_URL", "")
+    if not api_key:
+        api_key = os.environ.get("AI_API_KEY", "")
+    if not model_name:
+        model_name = os.environ.get("AI_MODEL", "gpt-4.1-mini")
+
 
     # If external AI API is configured
     if api_url and api_key and api_url.startswith("http"):

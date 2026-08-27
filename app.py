@@ -173,7 +173,8 @@ with st.sidebar:
         "💳 Fee & Risk Defaulters",
         "🛡️ Visitor Log & Gate Security",
         "📢 Notice Board & Broadcasts",
-        "🤖 AI Hostel Assistant (Chatbot)"
+        "🤖 AI Hostel Assistant (Chatbot)",
+        "⚙️ AI & System Settings"
     ]
 
     selected_menu = st.radio("Navigation", menu_options, label_visibility="collapsed")
@@ -611,6 +612,13 @@ elif selected_menu == "👨‍🎓 Student Directory":
     if not df_stus.empty:
         display_cols = ['student_id_code', 'name', 'gender', 'department', 'year', 'room_number', 'sleep_habit', 'fee_status', 'phone', 'parent_phone']
         st.dataframe(df_stus[display_cols], use_container_width=True, hide_index=True)
+        csv_data = df_stus[display_cols].to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Export Resident Roster (CSV)",
+            data=csv_data,
+            file_name=f"hostel_students_{date.today()}.csv",
+            mime="text/csv"
+        )
 
     # Register New Student Modal
     if st.session_state["user_role"] in ["ADMIN", "WARDEN"]:
@@ -896,22 +904,28 @@ elif selected_menu == "✈️ Leave & Digital Gate Pass":
                     <span class="badge-success" style="font-size: 0.85rem;">VALID & AUTHORIZED</span>
                 </div>
                 <hr style="border-color: #334155; margin: 12px 0;">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem;">
-                    <div>
-                        <span style="color: #94a3b8;">Resident Name:</span><br>
-                        <strong>{p['student_name']}</strong>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; flex: 1;">
+                        <div>
+                            <span style="color: #94a3b8;">Resident Name:</span><br>
+                            <strong>{p['student_name']}</strong>
+                        </div>
+                        <div>
+                            <span style="color: #94a3b8;">Gate Pass Ref Code:</span><br>
+                            <strong style="color: #facc15; font-family: monospace; font-size: 1.1rem;">{p['gate_pass_code']}</strong>
+                        </div>
+                        <div>
+                            <span style="color: #94a3b8;">Valid From:</span><br>
+                            <strong>{p['from_date']}</strong>
+                        </div>
+                        <div>
+                            <span style="color: #94a3b8;">Valid Until:</span><br>
+                            <strong>{p['to_date']}</strong>
+                        </div>
                     </div>
-                    <div>
-                        <span style="color: #94a3b8;">Gate Pass Ref Code:</span><br>
-                        <strong style="color: #facc15; font-family: monospace; font-size: 1.1rem;">{p['gate_pass_code']}</strong>
-                    </div>
-                    <div>
-                        <span style="color: #94a3b8;">Valid From:</span><br>
-                        <strong>{p['from_date']}</strong>
-                    </div>
-                    <div>
-                        <span style="color: #94a3b8;">Valid Until:</span><br>
-                        <strong>{p['to_date']}</strong>
+                    <div style="text-align:center; background:white; padding:8px; border-radius:10px;">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={p['gate_pass_code']}" style="display:block; width:100px; height:100px; border-radius:6px;" alt="QR" />
+                        <span style="color:#0f172a; font-size:0.65rem; font-weight:700; font-family:monospace;">SCAN AT GATE</span>
                     </div>
                 </div>
                 <div style="margin-top: 14px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #cbd5e1;">
@@ -1139,9 +1153,108 @@ elif selected_menu == "🤖 AI Hostel Assistant (Chatbot)":
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generate AI response
-        ai_reply = ai.generate_chat_response(prompt)
+        # Generate AI response (using custom configured key/url if available)
+        ai_reply = ai.generate_chat_response(
+            prompt,
+            api_url=st.session_state.get("custom_ai_url"),
+            api_key=st.session_state.get("custom_ai_key"),
+            model_name=st.session_state.get("custom_ai_model", "gpt-4.1-mini")
+        )
         
         st.session_state["chat_history"].append({"role": "assistant", "content": ai_reply})
         with st.chat_message("assistant"):
             st.markdown(ai_reply)
+
+
+# ======================================================================================
+# 13. AI & SYSTEM SETTINGS
+# ======================================================================================
+elif selected_menu == "⚙️ AI & System Settings":
+    st.title("⚙️ System Configuration & Cloud Integrations")
+    st.caption("Configure external LLM providers, test API connectivity, and inspect database settings.")
+
+    tab_ai_cfg, tab_db_cfg = st.tabs(["🤖 LLM / AI API Configuration", "🗄️ Database & Cloud Setup Guide"])
+
+    with tab_ai_cfg:
+        st.subheader("External AI / LLM Provider Settings")
+        st.markdown("""
+        The system includes a **built-in NLP rule & semantic engine** that functions completely offline without any API keys.
+        If you wish to power the assistant with a live LLM (OpenAI, Groq, Gemini, or Ollama), you can configure it below:
+        """)
+
+        with st.form("ai_settings_form"):
+            provider_type = st.selectbox(
+                "Preset Provider",
+                ["Built-in Offline Engine (Default)", "OpenAI", "Groq (Fast / Free tier)", "Google Gemini (OpenAI-compatible)", "Custom Endpoint / Ollama"]
+            )
+
+            default_url = ""
+            default_model = "gpt-4.1-mini"
+
+            if provider_type == "OpenAI":
+                default_url = "https://api.openai.com/v1/chat/completions"
+                default_model = "gpt-4.1-mini"
+            elif provider_type == "Groq (Fast / Free tier)":
+                default_url = "https://api.groq.com/openai/v1/chat/completions"
+                default_model = "llama-3.3-70b-versatile"
+            elif provider_type == "Google Gemini (OpenAI-compatible)":
+                default_url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+                default_model = "gemini-2.0-flash"
+            elif provider_type == "Custom Endpoint / Ollama":
+                default_url = "http://localhost:11434/v1/chat/completions"
+                default_model = "llama3"
+
+            cfg_url = st.text_input("AI Provider API URL", value=st.session_state.get("custom_ai_url", default_url))
+            cfg_key = st.text_input("AI API Key", value=st.session_state.get("custom_ai_key", ""), type="password")
+            cfg_model = st.text_input("Model Identifier", value=st.session_state.get("custom_ai_model", default_model))
+
+            save_btn = st.form_submit_button("💾 Save AI Settings")
+
+            if save_btn:
+                if provider_type == "Built-in Offline Engine (Default)":
+                    st.session_state["custom_ai_url"] = ""
+                    st.session_state["custom_ai_key"] = ""
+                    st.session_state["custom_ai_model"] = ""
+                    st.success("Switched to Built-in Offline AI Engine!")
+                else:
+                    st.session_state["custom_ai_url"] = cfg_url
+                    st.session_state["custom_ai_key"] = cfg_key
+                    st.session_state["custom_ai_model"] = cfg_model
+                    st.success("External AI API Settings saved for this session!")
+
+        st.markdown("---")
+        st.subheader("🧪 Live LLM Connectivity Test")
+        test_q = st.text_input("Test Prompt", "What are the benefits of staying in the university hostel?")
+        if st.button("⚡ Test AI Connection"):
+            with st.spinner("Connecting to AI Provider..."):
+                test_resp = ai.generate_chat_response(
+                    test_q,
+                    api_url=st.session_state.get("custom_ai_url"),
+                    api_key=st.session_state.get("custom_ai_key"),
+                    model_name=st.session_state.get("custom_ai_model", "gpt-4.1-mini")
+                )
+                st.markdown(test_resp)
+
+    with tab_db_cfg:
+        st.subheader("🗄️ Database Architecture & Cloud MySQL Setup")
+        st.markdown("""
+        - **Current Active Engine:** SQLite (Embedded zero-config database `hostel_database.db`)
+        - **Spring Boot Backend Engine:** MySQL 8.x (Configurable via `application.properties`)
+
+        #### Free Cloud MySQL Options for Production Deployment:
+        1. **Aiven for MySQL (Free Tier):**
+           - Create a free account on [aiven.io](https://aiven.io).
+           - Create a free MySQL service and copy the Service URI (`mysql://avnadmin:password@host:port/defaultdb?ssl-mode=REQUIRED`).
+        2. **TiDB Cloud (Free Serverless Tier):**
+           - Create a free account on [tidbcloud.com](https://tidbcloud.com) (MySQL compatible).
+        3. **Clever Cloud MySQL (Free 10MB Tier):**
+           - Create a MySQL add-on on [clever-cloud.com](https://clever-cloud.com).
+
+        #### Set Environment Variables on Render:
+        ```env
+        DB_URL=jdbc:mysql://your-cloud-host:port/your_db?useSSL=true&serverTimezone=UTC
+        DB_USERNAME=your_username
+        DB_PASSWORD=your_password
+        ```
+        """)
+
