@@ -1,0 +1,19 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: hostel_management
+      MYSQL_ROOT_PASSWORD: root
+    ports: ["3306:3306"]
+    volumes: ["mysql_data:/var/lib/mysql"]
+  app:
+    build: .
+    depends_on: [mysql]
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/hostel_management?useSSL=false&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      AI_PROVIDER_ENABLED: "false"
+    ports: ["8080:8080"]
+volumes:
+  mysql_data:

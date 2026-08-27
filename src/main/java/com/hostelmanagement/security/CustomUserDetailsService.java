@@ -1,0 +1,3 @@
+package com.hostelmanagement.security;
+import com.hostelmanagement.repository.UserRepository; import org.springframework.security.core.userdetails.*; import org.springframework.stereotype.Service;
+@Service public class CustomUserDetailsService implements UserDetailsService { private final UserRepository repo; public CustomUserDetailsService(UserRepository repo){this.repo=repo;} public UserDetails loadUserByUsername(String u)throws UsernameNotFoundException{return repo.findByUsername(u).map(x->User.withUsername(x.getUsername()).password(x.getPassword()).roles(x.getRole().name()).disabled(!x.isActive()).build()).orElseThrow(()->new UsernameNotFoundException("User not found"));}}
