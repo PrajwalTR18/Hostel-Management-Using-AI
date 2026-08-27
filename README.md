@@ -1,5 +1,7 @@
 # Advanced AI-Based Hostel Management System
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/PrajwalTR18/Hostel-Management-Using-AI)
+
 Final-year BE CSE/ISE project based on the supplied specification.
 
 ## Implemented foundation
