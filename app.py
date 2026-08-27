@@ -173,8 +173,7 @@ with st.sidebar:
         "💳 Fee & Risk Defaulters",
         "🛡️ Visitor Log & Gate Security",
         "📢 Notice Board & Broadcasts",
-        "🤖 AI Hostel Assistant (Chatbot)",
-        "⚙️ AI & System Settings"
+        "🤖 AI Hostel Assistant (Chatbot)"
     ]
 
     selected_menu = st.radio("Navigation", menu_options, label_visibility="collapsed")
@@ -1153,108 +1152,12 @@ elif selected_menu == "🤖 AI Hostel Assistant (Chatbot)":
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generate AI response (using custom configured key/url if available)
-        ai_reply = ai.generate_chat_response(
-            prompt,
-            api_url=st.session_state.get("custom_ai_url"),
-            api_key=st.session_state.get("custom_ai_key"),
-            model_name=st.session_state.get("custom_ai_model", "gpt-4.1-mini")
-        )
+        # Generate AI response
+        with st.spinner("AI is thinking..."):
+            ai_reply = ai.generate_chat_response(prompt)
         
         st.session_state["chat_history"].append({"role": "assistant", "content": ai_reply})
         with st.chat_message("assistant"):
             st.markdown(ai_reply)
 
-
-# ======================================================================================
-# 13. AI & SYSTEM SETTINGS
-# ======================================================================================
-elif selected_menu == "⚙️ AI & System Settings":
-    st.title("⚙️ System Configuration & Cloud Integrations")
-    st.caption("Configure external LLM providers, test API connectivity, and inspect database settings.")
-
-    tab_ai_cfg, tab_db_cfg = st.tabs(["🤖 LLM / AI API Configuration", "🗄️ Database & Cloud Setup Guide"])
-
-    with tab_ai_cfg:
-        st.subheader("External AI / LLM Provider Settings")
-        st.markdown("""
-        The system includes a **built-in NLP rule & semantic engine** that functions completely offline without any API keys.
-        If you wish to power the assistant with a live LLM (OpenAI, Groq, Gemini, or Ollama), you can configure it below:
-        """)
-
-        with st.form("ai_settings_form"):
-            provider_type = st.selectbox(
-                "Preset Provider",
-                ["Built-in Offline Engine (Default)", "OpenAI", "Groq (Fast / Free tier)", "Google Gemini (OpenAI-compatible)", "Custom Endpoint / Ollama"]
-            )
-
-            default_url = ""
-            default_model = "gpt-4.1-mini"
-
-            if provider_type == "OpenAI":
-                default_url = "https://api.openai.com/v1/chat/completions"
-                default_model = "gpt-4.1-mini"
-            elif provider_type == "Groq (Fast / Free tier)":
-                default_url = "https://api.groq.com/openai/v1/chat/completions"
-                default_model = "llama-3.3-70b-versatile"
-            elif provider_type == "Google Gemini (OpenAI-compatible)":
-                default_url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-                default_model = "gemini-2.0-flash"
-            elif provider_type == "Custom Endpoint / Ollama":
-                default_url = "http://localhost:11434/v1/chat/completions"
-                default_model = "llama3"
-
-            cfg_url = st.text_input("AI Provider API URL", value=st.session_state.get("custom_ai_url", default_url))
-            cfg_key = st.text_input("AI API Key", value=st.session_state.get("custom_ai_key", ""), type="password")
-            cfg_model = st.text_input("Model Identifier", value=st.session_state.get("custom_ai_model", default_model))
-
-            save_btn = st.form_submit_button("💾 Save AI Settings")
-
-            if save_btn:
-                if provider_type == "Built-in Offline Engine (Default)":
-                    st.session_state["custom_ai_url"] = ""
-                    st.session_state["custom_ai_key"] = ""
-                    st.session_state["custom_ai_model"] = ""
-                    st.success("Switched to Built-in Offline AI Engine!")
-                else:
-                    st.session_state["custom_ai_url"] = cfg_url
-                    st.session_state["custom_ai_key"] = cfg_key
-                    st.session_state["custom_ai_model"] = cfg_model
-                    st.success("External AI API Settings saved for this session!")
-
-        st.markdown("---")
-        st.subheader("🧪 Live LLM Connectivity Test")
-        test_q = st.text_input("Test Prompt", "What are the benefits of staying in the university hostel?")
-        if st.button("⚡ Test AI Connection"):
-            with st.spinner("Connecting to AI Provider..."):
-                test_resp = ai.generate_chat_response(
-                    test_q,
-                    api_url=st.session_state.get("custom_ai_url"),
-                    api_key=st.session_state.get("custom_ai_key"),
-                    model_name=st.session_state.get("custom_ai_model", "gpt-4.1-mini")
-                )
-                st.markdown(test_resp)
-
-    with tab_db_cfg:
-        st.subheader("🗄️ Database Architecture & Cloud MySQL Setup")
-        st.markdown("""
-        - **Current Active Engine:** SQLite (Embedded zero-config database `hostel_database.db`)
-        - **Spring Boot Backend Engine:** MySQL 8.x (Configurable via `application.properties`)
-
-        #### Free Cloud MySQL Options for Production Deployment:
-        1. **Aiven for MySQL (Free Tier):**
-           - Create a free account on [aiven.io](https://aiven.io).
-           - Create a free MySQL service and copy the Service URI (`mysql://avnadmin:password@host:port/defaultdb?ssl-mode=REQUIRED`).
-        2. **TiDB Cloud (Free Serverless Tier):**
-           - Create a free account on [tidbcloud.com](https://tidbcloud.com) (MySQL compatible).
-        3. **Clever Cloud MySQL (Free 10MB Tier):**
-           - Create a MySQL add-on on [clever-cloud.com](https://clever-cloud.com).
-
-        #### Set Environment Variables on Render:
-        ```env
-        DB_URL=jdbc:mysql://your-cloud-host:port/your_db?useSSL=true&serverTimezone=UTC
-        DB_USERNAME=your_username
-        DB_PASSWORD=your_password
-        ```
-        """)
 

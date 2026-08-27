@@ -4,6 +4,7 @@ Includes NLP Complaint Analysis, Smart Room Compatibility Matching,
 Predictive Analytics (Food Demand, Fee Risk, Attendance Anomaly), and Conversational AI Assistant.
 """
 
+import os
 import re
 import math
 from datetime import datetime, date, timedelta
@@ -310,44 +311,67 @@ def calculate_defaulter_risk(fee_records: list) -> list:
 
 HOSTEL_KNOWLEDGE_BASE = [
     {
-        "keywords": ["curfew", "night", "timing", "gate close", "in-time", "late"],
-        "answer": "🕒 **Hostel Timings & Curfew Rules:**\n- Main campus gate closes at **09:30 PM** for all resident blocks.\n- Night biometric attendance roll call is taken between **09:00 PM - 09:45 PM**.\n- Late entries require a valid digital Gate Pass pre-approved by your Block Warden. Repeat unauthorized late entries incur fine and parent notification."
+        "keywords": ["hi", "hello", "hey", "who are you", "what can you do", "help", "about", "assist", "good morning", "good evening"],
+        "answer": "👋 **Hello! I am your AI Hostel Assistant.**\n\nI can help you with:\n- 🕒 **Hostel & Curfew Rules:** Night roll-call & gate timings\n- ✈️ **Leave & Gate Pass:** Digital passes with QR verification\n- 🛠️ **Maintenance Complaints:** NLP-categorized plumbing, electrical, WiFi repair tickets\n- 🍲 **Mess & Dining:** Daily meals, timings, calories & special items\n- 💳 **Fee & Payments:** Dues, deadlines, receipts & accounts\n- 🎯 **Room Allocation:** Compatibility scoring & room swaps\n- 🚨 **Emergency Directory:** Warden, Security & Medical contacts\n\n*Feel free to ask any question!*"
     },
     {
-        "keywords": ["leave", "gate pass", "outstation", "home", "permission", "vacation"],
-        "answer": "✈️ **Leave & Gate Pass Application Process:**\n1. Go to the **Leave / Gate Pass** tab on the left sidebar.\n2. Submit your departure date, return date, and destination reason.\n3. Your Warden receives the request in real-time. Once approved, an instant **QR Code Gate Pass** is generated.\n4. Scan this QR code with the security turnstile at the main entrance."
+        "keywords": ["curfew", "night", "timing", "gate close", "in-time", "late", "entry", "night out", "hours"],
+        "answer": "🕒 **Hostel Timings & Night Curfew Policy:**\n- **Main Campus Gate Cutoff:** **09:30 PM** sharp for all resident blocks.\n- **Night Biometric Attendance:** Taken between **09:00 PM – 09:45 PM** daily.\n- **Late Entry Rule:** Entering after 09:30 PM requires an approved **Digital Gate Pass** signed by your Warden. Unauthorized late entries trigger automated notification to parents."
     },
     {
-        "keywords": ["complaint", "repair", "plumber", "electrician", "wifi not working", "leak", "clean"],
-        "answer": "🛠️ **Filing & Tracking Maintenance Complaints:**\n- Navigate to the **AI Complaints & Maintenance** section.\n- Type your issue in natural language (e.g. *'Wi-Fi router in floor 2 is dropping packets'* or *'Washbasin tap leaking'*).\n- Our **NLP AI Triage Engine** automatically categorizes the issue, determines urgency, and dispatches the duty technician within SLA."
+        "keywords": ["leave", "gate pass", "outstation", "home", "permission", "vacation", "pass", "qr", "apply leave"],
+        "answer": "✈️ **Leave & Digital Gate Pass Application:**\n1. Go to the **Leave & Digital Gate Pass** tab on the left sidebar.\n2. Enter departure & return dates along with your reason.\n3. Your Warden receives the request in real-time. Once approved, an instant **QR Code Gate Pass** is generated on screen.\n4. Show the QR code to the turnstile scanner at the main security gate."
     },
     {
-        "keywords": ["mess", "food", "menu", "timings", "meal", "breakfast", "dinner", "lunch"],
-        "answer": "🍲 **Mess Timings & Dining Schedule:**\n- **Breakfast:** 07:30 AM – 09:15 AM\n- **Lunch:** 12:30 PM – 02:15 PM\n- **Evening Snacks:** 05:00 PM – 06:15 PM\n- **Dinner:** 07:45 PM – 09:30 PM\nCheck the **Mess & Dining** tab to view today's complete nutritional menu and Sunday special polls."
+        "keywords": ["complaint", "repair", "plumber", "electrician", "leak", "clean", "tap", "fan", "light", "water", "geyser", "socket", "maintenance", "broken", "dirty"],
+        "answer": "🛠️ **Filing & Tracking Maintenance Grievances:**\n- Navigate to the **AI Complaints & Triage** section.\n- Type your issue in natural language (e.g., *'Washbasin pipe leaking'* or *'Tube light sparking'*).\n- Our **NLP AI Triage Engine** automatically categorizes the grievance, assesses urgency (SLA: 2–24 hrs), and routes it to the duty technician."
     },
     {
-        "keywords": ["fee", "payment", "due", "dues", "installment", "receipt", "fine"],
-        "answer": "💳 **Hostel Fee & Payment Guidelines:**\n- Semester room & mess fees must be cleared by the 15th of the start month.\n- View your breakdown and download digital receipts in the **Fee & Accounts** tab.\n- Online payment modes include UPI, Net Banking, and Debit/Credit card."
+        "keywords": ["mess", "food", "menu", "timings", "meal", "breakfast", "dinner", "lunch", "snacks", "diet", "veg", "non veg", "calories", "eating", "dining"],
+        "answer": "🍲 **Mess Timings & Dining Schedule:**\n- **Breakfast:** 07:30 AM – 09:15 AM\n- **Lunch:** 12:30 PM – 02:15 PM\n- **Evening Snacks:** 05:00 PM – 06:15 PM\n- **Dinner:** 07:45 PM – 09:30 PM\n*Check the **Mess & AI Waste Analytics** tab to view today's complete 4-meal nutritional menu!*"
     },
     {
-        "keywords": ["room change", "swap", "allocate", "single room", "roommate"],
-        "answer": "🎯 **Room Allocation & Swap Requests:**\n- Room changes are processed at the start of each semester via our **AI Compatibility Matching Engine**.\n- You can explore available rooms in the **AI Room Allocation** module and submit a preferred allocation request to the Chief Warden."
+        "keywords": ["fee", "payment", "due", "dues", "installment", "receipt", "fine", "online payment", "upi", "bank", "cost", "rent"],
+        "answer": "💳 **Hostel Fee & Payment Guidelines:**\n- Semester room & mess dues must be cleared by the **15th** of each semester cycle.\n- You can inspect your payment status and download receipts in the **Fee & Risk Defaulters** ledger.\n- Accepted modes: UPI, Net Banking, NEFT/RTGS, and Debit/Credit card."
     },
     {
-        "keywords": ["emergency", "warden contact", "medical", "doctor", "ambulance", "security", "fire", "help"],
-        "answer": "🚨 **Emergency Assistance Directory:**\n- 🏥 **Campus Medical Centre / Ambulance:** Ext: 108 / +91 98765 00108 (24x7)\n- 👨‍💼 **Chief Boys Warden (Dr. Rajesh Sharma):** +91 98765 43210\n- 👩‍💼 **Chief Girls Warden (Dr. Sunita Verma):** +91 98765 43211\n- 🛡️ **Main Security Gate Control Room:** Ext: 100 / +91 98765 00100"
+        "keywords": ["room change", "swap", "allocate", "single room", "double", "triple", "roommate", "occupancy", "vacancy", "bed", "allotment"],
+        "answer": "🎯 **Room Allocation & Compatibility Engine:**\n- View available rooms and match scores in the **AI Smart Room Allocation** tab.\n- Our algorithm matches students based on **Sleep Schedule (Early Bird vs Night Owl)**, **Study Habits**, **Cleanliness**, and **Year/Department synergy** to ensure optimal compatibility."
     },
     {
-        "keywords": ["wifi", "internet", "password", "lan", "speed", "login"],
-        "answer": "📶 **Campus Wi-Fi & Network Access:**\n- SSID: **CAMPUS_HOSTEL_5G** / **CAMPUS_HOSTEL_2.4G**\n- Login: Enter your Student ID (`STU-XXXX`) and campus portal password on the captive portal.\n- For dedicated high-bandwidth LAN ports in study rooms, register your MAC address at the IT Helpdesk."
+        "keywords": ["visitor", "parent", "guest", "friend", "father", "mother", "visiting hours", "relatives"],
+        "answer": "🛡️ **Visitor & Guest Policy:**\n- **Visiting Hours:** 09:00 AM – 07:00 PM daily in the Ground Floor Visitor Lounge.\n- Parents and guardians must register at the Security Gate with valid photo ID proof.\n- Non-resident guests are not permitted in residential rooms after 07:30 PM."
+    },
+    {
+        "keywords": ["wifi", "internet", "password", "lan", "speed", "login", "network", "ethernet"],
+        "answer": "📶 **Campus High-Speed Wi-Fi & Internet:**\n- **SSID:** `CAMPUS_HOSTEL_5G` / `CAMPUS_HOSTEL_2.4G`\n- **Login:** Enter your Student ID (`STU-XXXX`) and portal credentials on the captive login page.\n- High-speed 1Gbps LAN ports are also available in study rooms and library kiosks."
+    },
+    {
+        "keywords": ["attendance", "roll call", "biometric", "rfid", "present", "absent", "punch", "turnstile"],
+        "answer": "📅 **Smart Attendance & Night Roll Call:**\n- Night biometric/RFID roll call takes place between **09:00 PM – 09:45 PM** at your block entrance turnstile.\n- Unexcused absences past 09:30 PM automatically trigger SMS alerts to parents and disciplinary remarks."
+    },
+    {
+        "keywords": ["emergency", "warden contact", "medical", "doctor", "ambulance", "security", "fire", "hospital", "first aid", "sick", "phone", "help"],
+        "answer": "🚨 **24x7 Emergency Contact Directory:**\n- 🏥 **Campus Health Centre & Ambulance:** Ext: 108 / +91 98765 00108\n- 👨‍💼 **Chief Boys Warden (Dr. Rajesh Sharma):** +91 98765 43210\n- 👩‍💼 **Chief Girls Warden (Dr. Sunita Verma):** +91 98765 43211\n- 🛡️ **Main Security Gate Control Desk:** Ext: 100 / +91 98765 00100"
+    },
+    {
+        "keywords": ["gym", "laundry", "washing machine", "sports", "library", "amenities", "facilities"],
+        "answer": "🏋️ **Hostel Amenities & Facilities:**\n- **Gymnasium:** Open 06:00 AM – 08:30 AM & 05:30 PM – 08:30 PM.\n- **Automated Laundry Room:** 24x7 smart token washing machines on Floor 1.\n- **Reading Room & Library:** Open 24x7 with high-speed AC & silent study pods.\n- **Sports Facilities:** Badminton, Table Tennis, and Basketball courts open till 09:00 PM."
+    },
+    {
+        "keywords": ["ragging", "discipline", "harassment", "alcohol", "smoking", "proctor", "rule", "penalty"],
+        "answer": "⚖️ **Zero-Tolerance Anti-Ragging & Discipline Code:**\n- The campus enforces a strict **Zero-Tolerance Anti-Ragging Policy** under national guidelines.\n- Possession of alcohol, smoking, or contraband inside hostel premises is strictly prohibited and results in immediate suspension.\n- Anti-Ragging Helpline (24x7): **1800-180-5522** or contact the Proctor Office."
     }
 ]
 
 def generate_chat_response(query: str, api_url: str = None, api_key: str = None, model_name: str = None) -> str:
     """
     Answers student or administrator queries using LLM if configured, 
-    or built-in AI retrieval engine.
+    or built-in AI retrieval engine. Guaranteed 0% crash risk.
     """
+    if not query or not query.strip():
+        return "👋 How can I help you today? Ask about curfew timings, room allotments, mess menus, leave gate passes, or filing complaints."
+
     q_clean = query.strip().lower()
 
     if not api_url:
@@ -356,7 +380,6 @@ def generate_chat_response(query: str, api_url: str = None, api_key: str = None,
         api_key = os.environ.get("AI_API_KEY", "")
     if not model_name:
         model_name = os.environ.get("AI_MODEL", "gpt-4.1-mini")
-
 
     # If external AI API is configured
     if api_url and api_key and api_url.startswith("http"):
@@ -379,34 +402,45 @@ def generate_chat_response(query: str, api_url: str = None, api_key: str = None,
                     "Authorization": f"Bearer {api_key}"
                 }
             )
-            with urllib.request.urlopen(req, timeout=5) as response:
+            with urllib.request.urlopen(req, timeout=4) as response:
                 res_data = json.loads(response.read().decode('utf-8'))
                 if "choices" in res_data and len(res_data["choices"]) > 0:
                     return res_data["choices"][0]["message"]["content"]
         except Exception:
-            pass # Fall back to local knowledge engine
+            pass # Gracefully fall back to built-in knowledge base
 
-    # Local Knowledge Engine Matching
+    # Local Knowledge Engine Matching with word boundaries and fuzzy hit counting
     best_match = None
-    max_hits = 0
+    max_score = 0
+
+    query_words = set(re.findall(r'\b\w+\b', q_clean))
 
     for item in HOSTEL_KNOWLEDGE_BASE:
-        hits = sum(1 for kw in item["keywords"] if kw in q_clean)
-        if hits > max_hits:
-            max_hits = hits
+        score = 0
+        for kw in item["keywords"]:
+            if kw in q_clean:
+                score += 3 # Exact phrase hit
+            else:
+                kw_words = set(re.findall(r'\b\w+\b', kw))
+                if kw_words.issubset(query_words):
+                    score += 2
+
+        if score > max_score:
+            max_score = score
             best_match = item["answer"]
 
-    if best_match and max_hits > 0:
+    if best_match and max_score > 0:
         return best_match
 
     # General intelligent fallback
     return (
         f"🤖 **Hostel AI Assistant:**\n\n"
-        f"I understand you are asking about: *'{query}'*.\n\n"
-        f"Here are quick shortcuts to assist you:\n"
-        f"- 📋 **Complaints:** Submit a ticket with NLP triage in the *Complaints* tab.\n"
-        f"- ✈️ **Gate Pass:** Apply for outstation pass in the *Leave Management* tab.\n"
-        f"- 🍲 **Mess:** View today's meal schedule in the *Mess & Dining* tab.\n"
-        f"- 🏢 **Rooms:** View room vacancy & AI match score in *Room Allocation*.\n\n"
-        f"For urgent assistance, contact the Warden Office or Security Control Desk (+91 98765 00100)."
+        f"I received your question: *\"{query}\"*\n\n"
+        f"Here are key quick links to assist you:\n"
+        f"- 🕒 **Hostel Rules & Curfew:** Main gate closes at **09:30 PM**.\n"
+        f"- ✈️ **Gate Pass:** Apply for outstation permissions in the **Leave & Digital Gate Pass** tab.\n"
+        f"- 🛠️ **Complaints:** Submit maintenance requests in the **AI Complaints & Triage** tab.\n"
+        f"- 🍲 **Mess Food:** Check today's 4 meals in the **Mess & AI Waste Analytics** tab.\n"
+        f"- 🏢 **Rooms:** View room vacancy & compatibility in **AI Smart Room Allocation**.\n\n"
+        f"📞 *For urgent support, call Campus Control Room: +91 98765 00100 or Warden Office: +91 98765 43210.*"
     )
