@@ -1,1 +1,266 @@
-<!doctype html><html><head><title>Hostel Login</title><link rel="stylesheet" href="/css/app.css"></head><body><div class="auth"><h1>AI Hostel Management</h1><form method="post" action="/login"><input name="username" placeholder="Username" required><input type="password" name="password" placeholder="Password" required><button>Login</button></form></div></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartHostel AI - Campus Access Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #1e293b;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 960px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+            }
+            .auth-sidebar {
+                display: none;
+            }
+        }
+
+        .auth-sidebar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #1d4ed8 100%);
+            color: white;
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .auth-sidebar h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .auth-sidebar p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .feature-item {
+            margin-top: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .auth-main {
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 14px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #64748b;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #1e3a8a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: #1d4ed8;
+        }
+
+        .quick-hint {
+            margin-top: 24px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .error-alert {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="auth-sidebar">
+        <div>
+            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; color: #93c5fd;">Smart Campus Living</span>
+            <h2>SmartHostel AI</h2>
+            <p>Unified digital campus housing, AI compatibility room allotment, 24/7 digital gate pass verification, and automated maintenance triage.</p>
+        </div>
+
+        <div>
+            <div class="feature-item">🎯 <strong>AI Compatibility Engine:</strong> Multi-factor roommate synergy ranking</div>
+            <div class="feature-item">🎫 <strong>Instant QR Gate Passes:</strong> Automated turnstile clearances</div>
+            <div class="feature-item">🛠️ <strong>NLP Grievance Center:</strong> Zero-delay priority maintenance</div>
+        </div>
+
+        <div style="font-size: 0.75rem; opacity: 0.7; margin-top: 20px;">
+            SmartHostel AI Platform v2.4 • Campus Safety
+        </div>
+    </div>
+
+    <div class="auth-main">
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.6rem; color: #0f172a; margin-bottom: 6px;">Sign In to Portal</h2>
+        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 24px;">Choose your role to access your personalized campus dashboard.</p>
+
+        <div class="tabs">
+            <button type="button" class="tab-btn active" id="tabAdmin" onclick="switchTab('admin')">🛡️ Admin & Staff</button>
+            <button type="button" class="tab-btn" id="tabStudent" onclick="switchTab('student')">🎓 Student Resident</button>
+        </div>
+
+        <div th:if="${param.error}" class="error-alert">
+            ❌ Invalid username, student ID, or password. Please try again.
+        </div>
+        <div th:if="${param.logout}" style="background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 20px;">
+            ✅ You have been logged out successfully.
+        </div>
+
+        <form method="post" th:action="@{/login}" id="authForm">
+            <div class="form-group">
+                <label id="userLabel">Admin / Staff Username or Email</label>
+                <input type="text" name="username" id="usernameInput" class="form-control" placeholder="e.g. admin or warden_rajesh" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">🔐 Sign In to Admin Portal</button>
+        </form>
+
+        <div class="quick-hint" id="quickHint">
+            <strong>📌 Quick Demo Logins:</strong><br>
+            • Chief Admin: <code>admin</code> / <code>admin123</code><br>
+            • Boys Warden: <code>warden_rajesh</code> / <code>warden123</code><br>
+            • Security Gate: <code>security_gate</code> / <code>security123</code>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(role) {
+        const tabAdmin = document.getElementById('tabAdmin');
+        const tabStudent = document.getElementById('tabStudent');
+        const userLabel = document.getElementById('userLabel');
+        const userInput = document.getElementById('usernameInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const quickHint = document.getElementById('quickHint');
+
+        if (role === 'admin') {
+            tabAdmin.classList.add('active');
+            tabStudent.classList.remove('active');
+            userLabel.innerText = 'Admin / Staff Username or Email';
+            userInput.placeholder = 'e.g. admin or warden_rajesh';
+            submitBtn.innerText = '🔐 Sign In to Admin Portal';
+            quickHint.innerHTML = '<strong>📌 Quick Demo Logins:</strong><br>• Chief Admin: <code>admin</code> / <code>admin123</code><br>• Boys Warden: <code>warden_rajesh</code> / <code>warden123</code><br>• Security: <code>security_gate</code> / <code>security123</code>';
+        } else {
+            tabStudent.classList.add('active');
+            tabAdmin.classList.remove('active');
+            userLabel.innerText = 'Student ID Code (e.g. STU-1001) or Username';
+            userInput.placeholder = 'e.g. STU-1001 or aarav';
+            submitBtn.innerText = '🎓 Sign In to Student Portal';
+            quickHint.innerHTML = '<strong>📌 Quick Student Logins:</strong><br>• Aarav Sharma: <code>STU-1001</code> / <code>student123</code><br>• Ananya Sen: <code>STU-1006</code> / <code>student123</code><br>• Vikramaditya: <code>STU-1002</code> / <code>student123</code>';
+        }
+    }
+</script>
+
+</body>
+</html>

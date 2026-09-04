@@ -1,22 +1,35 @@
-# Stage 1: Build the application with Maven
-FROM maven:3.9-eclipse-temurin-17 AS build
+# SmartHostel AI Platform - Production Dockerfile
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8501
+
 WORKDIR /app
 
-# Copy project definition and source code
-COPY pom.xml .
-COPY src ./src
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-# Package the application (skip tests for faster deployment)
-RUN mvn clean package -DskipTests
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Stage 2: Run the application with lightweight JRE
-FROM eclipse-temurin:17-jre
-WORKDIR /app
+# Copy project files
+COPY . .
 
-# Copy compiled JAR from build stage
-COPY --from=build /app/target/*.jar app.jar
+# Initialize and seed database
+RUN python -c "import database as db; db.init_database()"
 
-# Render injects PORT automatically and Spring Boot binds to server.port=${PORT:8080}
-EXPOSE 8080
+# Expose Streamlit port
+EXPOSE 8501
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8501/_stcore/health || exit 1
+
+# Launch Streamlit server
+ENTRYPOINT ["sh", "-c", "streamlit run app.py --server.port=${PORT:-8501} --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=false"]

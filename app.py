@@ -1,5 +1,6 @@
 """
 Advanced AI-Based Hostel Management System - Streamlit Dashboard & Web Application
+Features Dedicated Admin & Student Authentication Portals, Role-Based Views, and Intelligent Services.
 """
 
 import streamlit as st
@@ -16,7 +17,7 @@ import ai_engine as ai
 
 # Page configuration
 st.set_page_config(
-    page_title="AI Hostel Management Platform",
+    page_title="SmartHostel AI Platform",
     page_icon="🏢",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -28,22 +29,58 @@ db.init_database()
 # Custom Modern Glassmorphism & Dashboard CSS
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
 
+    h1, h2, h3, h4 {
+        font-family: 'Outfit', 'Inter', sans-serif;
+    }
+
     .main-header {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        padding: 24px;
-        border-radius: 16px;
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
+        padding: 24px 30px;
+        border-radius: 18px;
         color: white;
         margin-bottom: 24px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
         display: flex;
         align-items: center;
         justify-content: space-between;
+    }
+
+    .auth-hero-banner {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
+        border-radius: 20px;
+        padding: 30px;
+        color: white;
+        margin-bottom: 24px;
+        box-shadow: 0 12px 35px rgba(15, 23, 42, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 18px;
+        padding: 26px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .feature-pill-card {
+        background: white;
+        border-radius: 14px;
+        padding: 18px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-pill-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     }
 
     .metric-card {
@@ -95,6 +132,15 @@ st.markdown("""
         font-size: 0.78rem;
         display: inline-block;
     }
+    .badge-admin {
+        background-color: #f3e8ff;
+        color: #6b21a8;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.78rem;
+        display: inline-block;
+    }
 
     .gate-pass-box {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -106,90 +152,475 @@ st.markdown("""
     }
 
     .ai-bubble {
-        background: #f8fafc;
-        border-left: 4px solid #3b82f6;
+        background: #f0fdf4;
+        border-left: 4px solid #16a34a;
         padding: 14px 18px;
         border-radius: 0 12px 12px 0;
         margin-bottom: 12px;
+        color: #14532d;
+    }
+
+    .ai-bubble-blue {
+        background: #f0f9ff;
+        border-left: 4px solid #0284c7;
+        padding: 14px 18px;
+        border-radius: 0 12px 12px 0;
+        margin-bottom: 12px;
+        color: #0c4a6e;
+    }
+
+    .profile-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
     }
 </style>
 """, unsafe_allow_html=True)
 
+# --------------------------------------------------------------------------------------
 # Session State Initialization
+# --------------------------------------------------------------------------------------
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
 if "user_role" not in st.session_state:
-    st.session_state["user_role"] = "ADMIN"
+    st.session_state["user_role"] = ""
 if "logged_user" not in st.session_state:
-    st.session_state["logged_user"] = "Chief Administrator"
+    st.session_state["logged_user"] = ""
+if "user_data" not in st.session_state:
+    st.session_state["user_data"] = {}
+if "student_profile" not in st.session_state:
+    st.session_state["student_profile"] = {}
 if "chat_history" not in st.session_state:
     st.session_state["chat_history"] = [
         {"role": "assistant", "content": "👋 Hello! I am your **AI Hostel Assistant**. Ask me anything about room allotments, leave policies, mess menus, curfew hours, or maintenance status!"}
     ]
 
-# Sidebar Brand & User Switcher
-with st.sidebar:
-    st.markdown("""
-    <div style="text-align: center; padding: 10px 0 20px 0;">
-        <h2 style="margin: 0; color: #1e3c72;">🏢 SmartHostel AI</h2>
-        <span style="font-size: 0.8rem; color: #64748b; font-weight: 500;">INTELLIGENT CAMPUS LIVING</span>
-    </div>
-    """, unsafe_allow_html=True)
 
-    # Role Selector for rapid demoing / role-based views
-    role = st.selectbox(
-        "🎭 View Mode / Role",
-        ["ADMIN", "WARDEN", "STUDENT (Aarav Sharma)", "STUDENT (Ananya Sen)", "SECURITY / GATE"],
-        index=0
-    )
-
-    if role == "ADMIN":
-        st.session_state["user_role"] = "ADMIN"
-        st.session_state["logged_user"] = "Chief Administrator"
-    elif role == "WARDEN":
-        st.session_state["user_role"] = "WARDEN"
-        st.session_state["logged_user"] = "Dr. Rajesh Sharma (Warden)"
-    elif "Aarav" in role:
-        st.session_state["user_role"] = "STUDENT"
-        st.session_state["student_id"] = 1
-        st.session_state["logged_user"] = "Aarav Sharma (STU-1001)"
-    elif "Ananya" in role:
-        st.session_state["user_role"] = "STUDENT"
-        st.session_state["student_id"] = 6
-        st.session_state["logged_user"] = "Ananya Sen (STU-1006)"
-    elif "SECURITY" in role:
-        st.session_state["user_role"] = "SECURITY"
-        st.session_state["logged_user"] = "Security Command Post"
-
-    st.markdown("---")
-
-    menu_options = [
-        "📊 Dashboard Overview",
-        "🏢 Hostel & Room Matrix",
-        "🎯 AI Smart Room Allocation",
-        "👨‍🎓 Student Directory",
-        "🛠️ AI Complaints & Triage",
-        "📅 Smart Attendance & Curfew",
-        "✈️ Leave & Digital Gate Pass",
-        "🍲 Mess & AI Waste Analytics",
-        "💳 Fee & Risk Defaulters",
-        "🛡️ Visitor Log & Gate Security",
-        "📢 Notice Board & Broadcasts",
-        "🤖 AI Hostel Assistant (Chatbot)"
-    ]
-
-    selected_menu = st.radio("Navigation", menu_options, label_visibility="collapsed")
-
-    st.markdown("---")
-    st.markdown(f"""
-    <div style="background: #f1f5f9; padding: 12px; border-radius: 10px; font-size: 0.8rem; color: #475569;">
-        <strong>Active Profile:</strong><br>
-        👤 {st.session_state['logged_user']}<br>
-        🏷️ Role: <span class="badge-info">{st.session_state['user_role']}</span>
-    </div>
-    """, unsafe_allow_html=True)
+def logout_user():
+    """Logs out the current active session."""
+    st.session_state["authenticated"] = False
+    st.session_state["user_role"] = ""
+    st.session_state["logged_user"] = ""
+    st.session_state["user_data"] = {}
+    st.session_state["student_profile"] = {}
+    st.rerun()
 
 
 # ======================================================================================
-# 1. DASHBOARD OVERVIEW
+# AUTHENTICATION GATEWAY (LOGIN & REGISTRATION PORTAL)
+# ======================================================================================
+if not st.session_state["authenticated"]:
+
+    # Sidebar Login Info & Demo Switcher
+    with st.sidebar:
+        st.markdown("""
+        <div style="text-align: center; padding: 10px 0 16px 0;">
+            <h2 style="margin: 0; color: #1e3c72; font-size: 1.5rem;">🏢 SmartHostel AI</h2>
+            <span style="font-size: 0.8rem; color: #64748b; font-weight: 500;">SECURE ACCESS PORTAL</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.info("🔐 **Access Portals Available:**\n- **Admin & Staff Portal**: For Chief Admin, Wardens, Security.\n- **Student Portal**: For residents with ID / roll code.\n- **Sign-Up**: Self-registration for new students.")
+        
+        st.markdown("---")
+        st.markdown("""
+        <div style="font-size: 0.8rem; color: #475569; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0;">
+            <strong>📌 Demo Quick Credentials:</strong><br><br>
+            <strong>Chief Admin:</strong> <code>admin</code> / <code>admin123</code><br>
+            <strong>Boys Warden:</strong> <code>warden_rajesh</code> / <code>warden123</code><br>
+            <strong>Student 1:</strong> <code>STU-1001</code> / <code>student123</code><br>
+            <strong>Student 2:</strong> <code>STU-1006</code> / <code>student123</code><br>
+            <strong>Security:</strong> <code>security_gate</code> / <code>security123</code>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("---")
+        st.markdown("""
+        <div style="font-size: 0.75rem; color: #94a3b8; text-align: center;">
+            SmartHostel AI v2.4 • Campus Safety & Housing Engine<br>
+            24/7 Security Helpline: +91 98765 00000
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Hero Banner
+    st.markdown("""
+    <div class="auth-hero-banner">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <span class="badge-admin" style="background: rgba(255,255,255,0.15); color: #93c5fd; font-size: 0.85rem; padding: 6px 14px; margin-bottom: 10px;">
+                    ✨ AI-Powered Smart Campus Living
+                </span>
+                <h1 style="margin: 8px 0 6px 0; font-size: 2.2rem; font-weight: 800; color: white;">SmartHostel AI Management Portal</h1>
+                <p style="margin: 0; opacity: 0.9; font-size: 1rem; max-width: 680px; line-height: 1.5;">
+                    Intelligent Room Allocation, Real-time NLP Maintenance Triage, Digital QR Gate Passes, and Automated Curfew & Dining Analytics.
+                </p>
+            </div>
+            <div style="text-align: right; background: rgba(255,255,255,0.08); padding: 14px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);">
+                <div style="font-size: 1.1rem; font-weight: 700; color: #4ade80;">🟢 SYSTEM ONLINE</div>
+                <div style="font-size: 0.8rem; color: #cbd5e1;">Spring Boot & AI Engine Linked</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Main Grid: Left Column = Tabs (Admin Login, Student Login, Register), Right Column = Highlights
+    left_col, right_col = st.columns([1.2, 1])
+
+    with left_col:
+        st.markdown('<div class="auth-card">', unsafe_allow_html=True)
+        
+        auth_tab_admin, auth_tab_student, auth_tab_register = st.tabs([
+            "🛡️ Admin & Staff Login",
+            "🎓 Student Resident Login",
+            "✍️ Student Self-Registration"
+        ])
+
+        # ------------------------------------------------------------------------------
+        # TAB 1: ADMIN & STAFF LOGIN
+        # ------------------------------------------------------------------------------
+        with auth_tab_admin:
+            st.subheader("🛡️ Administrative & Staff Access")
+            st.caption("Sign in with administrative, warden, or security credentials.")
+
+            with st.form("admin_login_form"):
+                admin_user_input = st.text_input("Username or Staff Email", placeholder="e.g. admin or warden_rajesh")
+                admin_pass_input = st.text_input("Password", type="password", placeholder="Enter your password")
+                
+                admin_submit = st.form_submit_button("🔐 Sign In as Administrator / Staff", use_container_width=True)
+
+                if admin_submit:
+                    success, user, profile = db.authenticate_user(
+                        admin_user_input, 
+                        admin_pass_input, 
+                        allowed_roles=["ADMIN", "WARDEN", "SECURITY"]
+                    )
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = user["role"]
+                        st.session_state["logged_user"] = user["full_name"]
+                        st.session_state["user_data"] = user
+                        st.session_state["student_profile"] = profile or {}
+                        st.success(f"Welcome back, {user['full_name']}!")
+                        st.rerun()
+                    else:
+                        st.error(f"❌ {user}")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("**⚡ 1-Click Quick Demo Login (Staff Roles):**")
+            d_col1, d_col2, d_col3, d_col4 = st.columns(4)
+
+            with d_col1:
+                if st.button("👑 Chief Admin", key="demo_admin"):
+                    success, user, profile = db.authenticate_user("admin", "admin123")
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = user["role"]
+                        st.session_state["logged_user"] = user["full_name"]
+                        st.session_state["user_data"] = user
+                        st.rerun()
+
+            with d_col2:
+                if st.button("🏢 Boys Warden", key="demo_warden_b"):
+                    success, user, profile = db.authenticate_user("warden_rajesh", "warden123")
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = user["role"]
+                        st.session_state["logged_user"] = user["full_name"]
+                        st.session_state["user_data"] = user
+                        st.rerun()
+
+            with d_col3:
+                if st.button("🌸 Girls Warden", key="demo_warden_g"):
+                    success, user, profile = db.authenticate_user("warden_sunita", "warden123")
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = user["role"]
+                        st.session_state["logged_user"] = user["full_name"]
+                        st.session_state["user_data"] = user
+                        st.rerun()
+
+            with d_col4:
+                if st.button("🛡️ Security Post", key="demo_sec"):
+                    success, user, profile = db.authenticate_user("security_gate", "security123")
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = user["role"]
+                        st.session_state["logged_user"] = user["full_name"]
+                        st.session_state["user_data"] = user
+                        st.rerun()
+
+        # ------------------------------------------------------------------------------
+        # TAB 2: STUDENT RESIDENT LOGIN
+        # ------------------------------------------------------------------------------
+        with auth_tab_student:
+            st.subheader("🎓 Student Resident Portal")
+            st.caption("Sign in with your Student ID Code (e.g. STU-1001) or Username.")
+
+            with st.form("student_login_form"):
+                stu_id_input = st.text_input("Student ID Code or Username", placeholder="e.g. STU-1001 or aarav")
+                stu_pass_input = st.text_input("Student Password", type="password", placeholder="Enter student password")
+
+                stu_submit = st.form_submit_button("🎓 Sign In to Student Portal", use_container_width=True)
+
+                if stu_submit:
+                    success, user, profile = db.authenticate_user(
+                        stu_id_input, 
+                        stu_pass_input, 
+                        allowed_roles="STUDENT"
+                    )
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = user["role"]
+                        st.session_state["logged_user"] = user["full_name"]
+                        st.session_state["user_data"] = user
+                        st.session_state["student_profile"] = profile or {}
+                        st.success(f"Welcome back, {user['full_name']}!")
+                        st.rerun()
+                    else:
+                        st.error(f"❌ {user}")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("**⚡ 1-Click Quick Demo Login (Student Residents):**")
+            s_d1, s_d2, s_d3, s_d4 = st.columns(4)
+
+            with s_d1:
+                if st.button("👨‍🎓 Aarav (STU-1001)", key="demo_stu_aarav"):
+                    success, user, profile = db.authenticate_user("STU-1001", "student123")
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = user["role"]
+                        st.session_state["logged_user"] = user["full_name"]
+                        st.session_state["user_data"] = user
+                        st.session_state["student_profile"] = profile
+                        st.rerun()
+
+            with s_d2:
+                if st.button("👩‍🎓 Ananya (STU-1006)", key="demo_stu_ananya"):
+                    success, user, profile = db.authenticate_user("STU-1006", "student123")
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = user["role"]
+                        st.session_state["logged_user"] = user["full_name"]
+                        st.session_state["user_data"] = user
+                        st.session_state["student_profile"] = profile
+                        st.rerun()
+
+            with s_d3:
+                if st.button("👨‍🎓 Vikram (STU-1002)", key="demo_stu_vikram"):
+                    success, user, profile = db.authenticate_user("STU-1002", "student123")
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = user["role"]
+                        st.session_state["logged_user"] = user["full_name"]
+                        st.session_state["user_data"] = user
+                        st.session_state["student_profile"] = profile
+                        st.rerun()
+
+            with s_d4:
+                if st.button("👩‍🎓 Pooja (STU-1007)", key="demo_stu_pooja"):
+                    success, user, profile = db.authenticate_user("STU-1007", "student123")
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = user["role"]
+                        st.session_state["logged_user"] = user["full_name"]
+                        st.session_state["user_data"] = user
+                        st.session_state["student_profile"] = profile
+                        st.rerun()
+
+        # ------------------------------------------------------------------------------
+        # TAB 3: STUDENT REGISTRATION / ACCOUNT ACTIVATION
+        # ------------------------------------------------------------------------------
+        with auth_tab_register:
+            st.subheader("✍️ Resident Onboarding & Account Activation")
+            st.caption("Newly admitted students can register their profile to generate credentials.")
+
+            with st.form("student_registration_form"):
+                all_stus_cnt = len(db.fetch_all("SELECT id FROM students"))
+                default_code = f"STU-{1000 + all_stus_cnt + 1}"
+
+                r_c1, r_c2 = st.columns(2)
+                with r_c1:
+                    reg_code = st.text_input("Assigned Student ID Code", value=default_code)
+                    reg_name = st.text_input("Full Name", placeholder="e.g. Siddharth Verma")
+                    reg_email = st.text_input("Campus Email", placeholder="e.g. siddharth.v@campus.edu")
+                    reg_phone = st.text_input("Mobile Number", value="+91 91234 56700")
+                    reg_gender = st.selectbox("Gender", ["Male", "Female", "Other"])
+                    reg_dept = st.selectbox("Department", [
+                        "Computer Science", "Information Science", "Electronics & Comm", 
+                        "Mechanical Eng", "Biotechnology", "Electrical Eng", "Civil Engineering", 
+                        "Artificial Intelligence"
+                    ])
+                
+                with r_c2:
+                    reg_year = st.selectbox("Academic Year", [1, 2, 3, 4])
+                    reg_diet = st.selectbox("Dietary Preference", ["Veg", "Non-Veg", "Eggetarian"])
+                    reg_sleep = st.selectbox("Sleep Habit", ["Early Bird", "Night Owl", "Flexible"])
+                    reg_study = st.selectbox("Study Style", ["Silent / Intensive", "Group / Music", "Moderate"])
+                    reg_clean = st.selectbox("Cleanliness Standard", ["Very High", "High", "Moderate"])
+                    reg_password = st.text_input("Create Account Password", type="password", value="student123")
+
+                reg_submit = st.form_submit_button("🚀 Activate Student Account & Sign In", use_container_width=True)
+
+                if reg_submit:
+                    s_data = {
+                        "student_id_code": reg_code,
+                        "username": reg_code.lower().replace("-", ""),
+                        "name": reg_name,
+                        "email": reg_email,
+                        "phone": reg_phone,
+                        "gender": reg_gender,
+                        "department": reg_dept,
+                        "year": reg_year,
+                        "dietary_pref": reg_diet,
+                        "sleep_habit": reg_sleep,
+                        "study_habit": reg_study,
+                        "cleanliness": reg_clean
+                    }
+                    ok, msg, res_data = db.register_student_account(s_data, reg_password)
+                    if ok:
+                        st.success("🎉 Account successfully registered and activated!")
+                        st.session_state["authenticated"] = True
+                        st.session_state["user_role"] = "STUDENT"
+                        st.session_state["logged_user"] = res_data["user"]["full_name"]
+                        st.session_state["user_data"] = res_data["user"]
+                        st.session_state["student_profile"] = res_data["student"]
+                        st.rerun()
+                    else:
+                        st.error(f"❌ {msg}")
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # Right Column: Platform Capabilities Spotlight
+    with right_col:
+        st.markdown("""
+        <div class="feature-pill-card">
+            <h3 style="margin: 0 0 6px 0; color: #1e3c72; font-size: 1.15rem;">🎯 AI Compatibility Room Allocation</h3>
+            <p style="margin: 0; color: #475569; font-size: 0.88rem; line-height: 1.5;">
+                Matches unallocated students and roommate candidates with multi-factor psychological, study style, sleep rhythm, and cleanliness synergy scoring.
+            </p>
+        </div>
+
+        <div class="feature-pill-card">
+            <h3 style="margin: 0 0 6px 0; color: #0284c7; font-size: 1.15rem;">🛠️ Zero-Delay NLP Maintenance Triage</h3>
+            <p style="margin: 0; color: #475569; font-size: 0.88rem; line-height: 1.5;">
+                Students describe complaints in natural language. The AI instantly parses department routing, severity SLA, sentiment, and technician action items.
+            </p>
+        </div>
+
+        <div class="feature-pill-card">
+            <h3 style="margin: 0 0 6px 0; color: #16a34a; font-size: 1.15rem;">✈️ Digital QR Gate Passes & Curfew</h3>
+            <p style="margin: 0; color: #475569; font-size: 0.88rem; line-height: 1.5;">
+                Paperless outstation leave applications, Warden electronic approvals, and encrypted QR turnstile verification for campus gate security.
+            </p>
+        </div>
+
+        <div class="feature-pill-card">
+            <h3 style="margin: 0 0 6px 0; color: #9333ea; font-size: 1.15rem;">🍲 Predictive Dining Waste Analytics</h3>
+            <p style="margin: 0; color: #475569; font-size: 0.88rem; line-height: 1.5;">
+                Real-time active student headcount and leave forecaster optimizing daily raw material preparation batches and curbing food waste by 25%+.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.stop()
+
+
+# ======================================================================================
+# AUTHENTICATED DASHBOARD & NAVIGATION
+# ======================================================================================
+
+# Refresh student profile if student
+if st.session_state.get("user_role") == "STUDENT" and st.session_state.get("user_data", {}).get("student_id"):
+    st.session_state["student_profile"] = db.get_student_profile(st.session_state["user_data"]["student_id"])
+
+with st.sidebar:
+    st.markdown("""
+    <div style="text-align: center; padding: 6px 0 16px 0;">
+        <h2 style="margin: 0; color: #1e3c72; font-size: 1.45rem;">🏢 SmartHostel AI</h2>
+        <span style="font-size: 0.75rem; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">CAMPUS INTELLIGENCE</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Active User Profile Card
+    u_role = st.session_state.get("user_role", "STUDENT")
+    role_badge_class = {
+        "ADMIN": "badge-admin",
+        "WARDEN": "badge-urgent",
+        "STUDENT": "badge-success",
+        "SECURITY": "badge-high"
+    }.get(u_role, "badge-info")
+
+    stu_info_snippet = ""
+    if u_role == "STUDENT":
+        sp = st.session_state.get("student_profile", {})
+        r_num = sp.get("room_details", {}).get("room_number") if sp.get("room_details") else "Unassigned"
+        stu_code = sp.get("student_id_code", "STU")
+        dept = sp.get("department", "")
+        stu_info_snippet = f"<br>🆔 <code>{stu_code}</code> • 🚪 Room {r_num}<br>📚 {dept} (Yr {sp.get('year', 1)})"
+
+    st.markdown(f"""
+    <div class="profile-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>👤 {st.session_state['logged_user']}</strong>
+            <span class="{role_badge_class}">{u_role}</span>
+        </div>
+        <div style="font-size: 0.8rem; color: #475569; margin-top: 4px;">
+            {stu_info_snippet}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Logout Button
+    if st.button("🚪 Sign Out / Switch User", use_container_width=True):
+        logout_user()
+
+    st.markdown("---")
+
+    # Dynamic Menu Options based on Active Role
+    if u_role in ["ADMIN", "WARDEN"]:
+        menu_options = [
+            "📊 Dashboard Overview",
+            "🏢 Hostel & Room Matrix",
+            "🎯 AI Smart Room Allocation",
+            "👨‍🎓 Student Directory",
+            "🛠️ AI Complaints & Triage",
+            "📅 Smart Attendance & Curfew",
+            "✈️ Leave & Digital Gate Pass",
+            "🍲 Mess & AI Waste Analytics",
+            "💳 Fee & Risk Defaulters",
+            "🛡️ Visitor Log & Gate Security",
+            "📢 Notice Board & Broadcasts",
+            "🤖 AI Hostel Assistant (Chatbot)"
+        ]
+    elif u_role == "STUDENT":
+        menu_options = [
+            "🏠 My Student Dashboard",
+            "🚪 My Room & Roommates",
+            "✈️ Apply Leave & Active Gate Pass",
+            "🛠️ File & Track Complaints (AI Triage)",
+            "🍲 Mess Menu & Daily Schedule",
+            "💳 My Fee Status & Receipts",
+            "📢 Campus Notices & Circulars",
+            "🤖 AI Hostel Assistant (Chatbot)"
+        ]
+    elif u_role == "SECURITY":
+        menu_options = [
+            "🎫 Gate Pass QR Scanner & Verifier",
+            "📅 Curfew & Night Check-In Log",
+            "🛡️ Visitor Entry & Check-Out Registry",
+            "📢 Campus Emergency Broadcasts",
+            "🤖 AI Hostel Assistant (Chatbot)"
+        ]
+    else:
+        menu_options = ["📊 Dashboard Overview", "🤖 AI Hostel Assistant (Chatbot)"]
+
+    selected_menu = st.radio("Navigation", menu_options, label_visibility="collapsed")
+
+
+# ======================================================================================
+# 1. ADMIN / WARDEN: DASHBOARD OVERVIEW
 # ======================================================================================
 if selected_menu == "📊 Dashboard Overview":
     st.markdown("""
@@ -355,7 +786,7 @@ if selected_menu == "📊 Dashboard Overview":
 
 
 # ======================================================================================
-# 2. HOSTEL & ROOM MATRIX
+# 2. ADMIN / WARDEN: HOSTEL & ROOM MATRIX
 # ======================================================================================
 elif selected_menu == "🏢 Hostel & Room Matrix":
     st.title("🏢 Hostel & Room Infrastructure Matrix")
@@ -395,7 +826,6 @@ elif selected_menu == "🏢 Hostel & Room Matrix":
 
     room_rows = db.fetch_all(query, params)
 
-    # Grid Display
     st.markdown(f"**Found {len(room_rows)} matching rooms:**")
     
     cols = st.columns(3)
@@ -408,7 +838,6 @@ elif selected_menu == "🏢 Hostel & Room Matrix":
                 "MAINTENANCE": "badge-high"
             }.get(r["status"], "badge-info")
 
-            # Get students in this room
             room_students = db.fetch_all("SELECT name, year, department FROM students WHERE room_id = ?", (r["id"],))
             occupants_str = ", ".join([s["name"].split()[0] for s in room_students]) if room_students else "None (Vacant)"
 
@@ -431,7 +860,6 @@ elif selected_menu == "🏢 Hostel & Room Matrix":
             </div>
             """, unsafe_allow_html=True)
 
-    # Add / Edit Room Modal Expander
     if st.session_state["user_role"] in ["ADMIN", "WARDEN"]:
         with st.expander("➕ Add New Room to Inventory"):
             with st.form("new_room_form"):
@@ -463,7 +891,7 @@ elif selected_menu == "🏢 Hostel & Room Matrix":
 
 
 # ======================================================================================
-# 3. AI SMART ROOM ALLOCATION
+# 3. ADMIN / WARDEN: AI SMART ROOM ALLOCATION
 # ======================================================================================
 elif selected_menu == "🎯 AI Smart Room Allocation":
     st.title("🎯 AI Smart Room Allocation & Compatibility Matcher")
@@ -473,8 +901,8 @@ elif selected_menu == "🎯 AI Smart Room Allocation":
     all_students = db.fetch_all("SELECT * FROM students")
     available_rooms = db.fetch_all("SELECT * FROM rooms WHERE status != 'FULL' AND status != 'MAINTENANCE'")
 
-    st.markdown(f"""
-    <div class="ai-bubble">
+    st.markdown("""
+    <div class="ai-bubble-blue">
         <strong>🧠 AI Allocation Engine Status:</strong> Active & Ready<br>
         Analyzes 7 compatibility vectors: <em>Seniority (Year), Departmental Synergy, Sleep Cycles (Early Bird vs Night Owl), Study Style, Cleanliness Habits, AC Preferences, and Capacity</em>.
     </div>
@@ -506,10 +934,8 @@ elif selected_menu == "🎯 AI Smart Room Allocation":
 
     with alloc_c2:
         st.subheader("2. AI Compatibility Rankings & Recommendations")
-        
         recommendations = []
         for r in available_rooms:
-            # Fetch existing roommates in this room
             roommates = db.fetch_all("SELECT * FROM students WHERE room_id = ?", (r["id"],))
             comp = ai.calculate_room_compatibility(student_obj, r, roommates)
             if comp["score"] > 0:
@@ -525,9 +951,7 @@ elif selected_menu == "🎯 AI Smart Room Allocation":
             for idx, rec in enumerate(recommendations[:5]):
                 r = rec["room"]
                 comp = rec["comp"]
-                roommates = rec["roommates"]
                 avail_beds = r["capacity"] - r["occupied_beds"]
-
                 color = "#16a34a" if comp["score"] >= 80 else ("#2563eb" if comp["score"] >= 65 else "#ea580c")
 
                 st.markdown(f"""
@@ -550,16 +974,13 @@ elif selected_menu == "🎯 AI Smart Room Allocation":
 
                 if st.session_state["user_role"] in ["ADMIN", "WARDEN"]:
                     if st.button(f"⚡ Allocate {student_obj['name']} to Room {r['room_number']}", key=f"alloc_btn_{r['id']}"):
-                        # Free previous room if any
                         if student_obj["room_id"]:
                             db.execute_query("UPDATE rooms SET occupied_beds = MAX(0, occupied_beds - 1) WHERE id = ?", (student_obj["room_id"],))
-                            # update status
                             prev_r = db.fetch_one("SELECT * FROM rooms WHERE id = ?", (student_obj["room_id"],))
                             if prev_r:
                                 new_st = "AVAILABLE" if prev_r["occupied_beds"] == 0 else "PARTIALLY_OCCUPIED"
                                 db.execute_query("UPDATE rooms SET status = ? WHERE id = ?", (new_st, student_obj["room_id"]))
 
-                        # Allocate new room
                         new_occ = r["occupied_beds"] + 1
                         new_status = "FULL" if new_occ >= r["capacity"] else "PARTIALLY_OCCUPIED"
                         db.execute_query("UPDATE rooms SET occupied_beds = ?, status = ? WHERE id = ?", (new_occ, new_status, r["id"]))
@@ -571,7 +992,7 @@ elif selected_menu == "🎯 AI Smart Room Allocation":
 
 
 # ======================================================================================
-# 4. STUDENT DIRECTORY
+# 4. ADMIN / WARDEN: STUDENT DIRECTORY
 # ======================================================================================
 elif selected_menu == "👨‍🎓 Student Directory":
     st.title("👨‍🎓 Resident Student Directory")
@@ -603,23 +1024,17 @@ elif selected_menu == "👨‍🎓 Student Directory":
         s_params.extend([f"%{search_query}%", f"%{search_query}%", f"%{search_query}%"])
 
     student_list = db.fetch_all(s_query, s_params)
+    st.markdown(f"**Showing {len(student_list)} residents:**")
 
-    st.markdown(f"**Total Registered Residents: {len(student_list)}**")
-
-    # Table view
-    df_stus = pd.DataFrame(student_list)
-    if not df_stus.empty:
-        display_cols = ['student_id_code', 'name', 'gender', 'department', 'year', 'room_number', 'sleep_habit', 'fee_status', 'phone', 'parent_phone']
-        st.dataframe(df_stus[display_cols], use_container_width=True, hide_index=True)
-        csv_data = df_stus[display_cols].to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="📥 Export Resident Roster (CSV)",
-            data=csv_data,
-            file_name=f"hostel_students_{date.today()}.csv",
-            mime="text/csv"
+    df_stu = pd.DataFrame(student_list)
+    if not df_stu.empty:
+        display_cols = ['student_id_code', 'name', 'gender', 'department', 'year', 'room_number', 'phone', 'email', 'fee_status', 'sleep_habit', 'dietary_pref']
+        st.dataframe(
+            df_stu[[c for c in display_cols if c in df_stu.columns]], 
+            use_container_width=True, 
+            hide_index=True
         )
 
-    # Register New Student Modal
     if st.session_state["user_role"] in ["ADMIN", "WARDEN"]:
         with st.expander("➕ Register New Resident Student"):
             with st.form("new_student_form"):
@@ -630,7 +1045,7 @@ elif selected_menu == "👨‍🎓 Student Directory":
                     n_email = st.text_input("Email Address", "pranav.h@campus.edu")
                     n_phone = st.text_input("Contact Phone", "+91 91234 56799")
                 with ns2:
-                    n_gender = st.selectbox("Gender", ["Male", "Female"])
+                    n_gender = st.selectbox("Gender", ["Male", "Female", "Other"])
                     n_dept = st.selectbox("Department", ["Computer Science", "Information Science", "Electronics & Comm", "Mechanical Eng", "Biotechnology", "Electrical Eng", "Civil Engineering", "Artificial Intelligence"])
                     n_year = st.selectbox("Year of Study", [1, 2, 3, 4])
                     n_diet = st.selectbox("Dietary Preference", ["Veg", "Non-Veg", "Eggetarian"])
@@ -643,19 +1058,30 @@ elif selected_menu == "👨‍🎓 Student Directory":
 
                 submit_student = st.form_submit_button("Register Student")
                 if submit_student:
-                    try:
-                        db.execute_query("""
-                        INSERT INTO students (student_id_code, name, email, phone, gender, department, year, sleep_habit, study_habit, cleanliness, dietary_pref, fee_status, parent_name, parent_phone)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?, ?)
-                        """, (n_code, n_name, n_email, n_phone, n_gender, n_dept, n_year, n_sleep, n_study, n_clean, n_diet, n_parent, n_parent_phone))
+                    ok, msg, res = db.register_student_account({
+                        "student_id_code": n_code,
+                        "name": n_name,
+                        "email": n_email,
+                        "phone": n_phone,
+                        "gender": n_gender,
+                        "department": n_dept,
+                        "year": n_year,
+                        "dietary_pref": n_diet,
+                        "sleep_habit": n_sleep,
+                        "study_habit": n_study,
+                        "cleanliness": n_clean,
+                        "parent_name": n_parent,
+                        "parent_phone": n_parent_phone
+                    })
+                    if ok:
                         st.success(f"Student {n_name} ({n_code}) registered successfully!")
                         st.rerun()
-                    except Exception as e:
-                        st.error(f"Error registering student: {e}")
+                    else:
+                        st.error(f"Error registering student: {msg}")
 
 
 # ======================================================================================
-# 5. AI COMPLAINTS & MAINTENANCE TRIAGE
+# 5. ADMIN / WARDEN: AI COMPLAINTS & MAINTENANCE TRIAGE
 # ======================================================================================
 elif selected_menu == "🛠️ AI Complaints & Triage":
     st.title("🛠️ AI Complaint & Maintenance Intelligence Center")
@@ -668,7 +1094,6 @@ elif selected_menu == "🛠️ AI Complaints & Triage":
         with st.form("complaint_submission_form"):
             c_col1, c_col2 = st.columns(2)
             with c_col1:
-                # Student selection
                 all_stus = db.fetch_all("SELECT * FROM students")
                 stu_names = {f"{s['name']} (Room {s['room_id'] or 'Unassigned'})": s for s in all_stus}
                 chosen_stu_key = st.selectbox("Reporting Resident", list(stu_names.keys()))
@@ -686,7 +1111,6 @@ elif selected_menu == "🛠️ AI Complaints & Triage":
                 if not complaint_desc.strip():
                     st.warning("Please provide a description of the issue.")
                 else:
-                    # Run AI analysis
                     ai_res = ai.analyze_complaint(complaint_desc)
                     now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -746,83 +1170,55 @@ elif selected_menu == "🛠️ AI Complaints & Triage":
         
         if st.button("⚡ Test NLP Engine"):
             res = ai.analyze_complaint(sample_query)
-            
-            sb_c1, sb_c2, sb_c3, sb_c4 = st.columns(4)
-            with sb_c1:
-                st.metric("Detected Category", res["category"])
-            with sb_c2:
-                st.metric("Urgency / Priority", res["priority"])
-            with sb_c3:
-                st.metric("Sentiment", res["sentiment"])
-            with sb_c4:
-                st.metric("Target SLA", f"{res['sla_hours']} Hours")
-
-            st.markdown("---")
-            st.markdown(f"**🏢 Assigned Department:** `{res['department']}`")
-            st.markdown(f"**🔧 Recommended Action Plan:** `{res['suggested_action']}`")
-            st.markdown(f"**🎯 AI Confidence Score:** `{int(res['confidence']*100)}%`")
+            st.json(res)
 
 
 # ======================================================================================
-# 6. SMART ATTENDANCE & NIGHT CURFEW
+# 6. ADMIN / WARDEN: SMART ATTENDANCE & CURFEW
 # ======================================================================================
 elif selected_menu == "📅 Smart Attendance & Curfew":
-    st.title("📅 Smart Attendance & Night Curfew Tracker")
-    st.caption("Automated turnstile RFID/Biometric night roll call logger and absentee alert system.")
+    st.title("📅 Smart Biometric Attendance & Curfew Alerts")
+    st.caption("Automated turnstile logging, curfew compliance tracking, and unauthorized absentee detection.")
 
-    att_date = st.date_input("Select Attendance Date", value=date.today())
-    att_date_str = att_date.strftime("%Y-%m-%d")
+    today_str = date.today().strftime("%Y-%m-%d")
+    att_date = st.date_input("Attendance Date", value=date.today())
+    date_str = att_date.strftime("%Y-%m-%d")
 
-    records = db.fetch_all("SELECT * FROM attendance WHERE date = ?", (att_date_str,))
-    students = db.fetch_all("SELECT * FROM students")
-
-    # If no records for selected date, provide 1-click batch generation
+    records = db.fetch_all("SELECT * FROM attendance WHERE date = ?", (date_str,))
+    
     if not records:
-        st.info(f"No roll call logged yet for {att_date_str}.")
-        if st.button("⚡ Run Automated RFID Night Attendance Simulation for Today"):
-            for s in students:
-                rand_val = random.random()
-                stat = "PRESENT" if rand_val > 0.12 else ("LATE" if rand_val > 0.05 else "ABSENT")
-                cin = "21:10" if stat == "PRESENT" else ("22:40" if stat == "LATE" else None)
-                cout = "07:30" if stat in ["PRESENT", "LATE"] else None
-                db.execute_query("""
-                INSERT INTO attendance (student_id, student_name, room_number, date, status, check_in_time, check_out_time, marked_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'Smart RFID Biometric Gate')
-                """, (s["id"], s["name"], f"Room {s['room_id'] or 'Unassigned'}", att_date_str, stat, cin, cout))
-            st.success("RFID Roll Call generated!")
-            st.rerun()
-    else:
-        # Metrics
-        p_count = sum(1 for r in records if r["status"] == "PRESENT")
-        l_count = sum(1 for r in records if r["status"] == "LATE")
-        a_count = sum(1 for r in records if r["status"] == "ABSENT")
-        lv_count = sum(1 for r in records if r["status"] == "ON_LEAVE")
+        st.info(f"No attendance records found for {date_str}. Showing latest recorded data.")
+        records = db.fetch_all("SELECT * FROM attendance ORDER BY date DESC LIMIT 50")
 
-        ac1, ac2, ac3, ac4 = st.columns(4)
-        with ac1:
-            st.markdown(f"""<div class="metric-card"><span style="color:#16a34a; font-weight:600;">PRESENT</span><h2>{p_count}</h2></div>""", unsafe_allow_html=True)
-        with ac2:
-            st.markdown(f"""<div class="metric-card"><span style="color:#d97706; font-weight:600;">LATE CURFEW</span><h2>{l_count}</h2></div>""", unsafe_allow_html=True)
-        with ac3:
-            st.markdown(f"""<div class="metric-card"><span style="color:#dc2626; font-weight:600;">ABSENT (UNAUTHORIZED)</span><h2>{a_count}</h2></div>""", unsafe_allow_html=True)
-        with ac4:
-            st.markdown(f"""<div class="metric-card"><span style="color:#2563eb; font-weight:600;">AUTHORIZED LEAVE</span><h2>{lv_count}</h2></div>""", unsafe_allow_html=True)
+    p_count = sum(1 for r in records if r["status"] == "PRESENT")
+    l_count = sum(1 for r in records if r["status"] == "LATE")
+    a_count = sum(1 for r in records if r["status"] == "ABSENT")
+    lv_count = sum(1 for r in records if r["status"] == "ON_LEAVE")
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        # Display Table
-        df_att = pd.DataFrame(records)
+    ac1, ac2, ac3, ac4 = st.columns(4)
+    with ac1:
+        st.markdown(f"""<div class="metric-card"><span style="color:#16a34a; font-weight:600;">PRESENT</span><h2>{p_count}</h2></div>""", unsafe_allow_html=True)
+    with ac2:
+        st.markdown(f"""<div class="metric-card"><span style="color:#d97706; font-weight:600;">LATE CURFEW</span><h2>{l_count}</h2></div>""", unsafe_allow_html=True)
+    with ac3:
+        st.markdown(f"""<div class="metric-card"><span style="color:#dc2626; font-weight:600;">ABSENT (UNAUTHORIZED)</span><h2>{a_count}</h2></div>""", unsafe_allow_html=True)
+    with ac4:
+        st.markdown(f"""<div class="metric-card"><span style="color:#2563eb; font-weight:600;">AUTHORIZED LEAVE</span><h2>{lv_count}</h2></div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    df_att = pd.DataFrame(records)
+    if not df_att.empty:
         st.dataframe(df_att[['student_id', 'student_name', 'room_number', 'date', 'status', 'check_in_time', 'check_out_time', 'marked_by']], use_container_width=True, hide_index=True)
 
-        # Trigger Automated Parent Alert for Absentees
-        if a_count > 0 and st.session_state["user_role"] in ["ADMIN", "WARDEN"]:
-            st.warning(f"🚨 {a_count} student(s) marked ABSENT past curfew cutoff.")
-            if st.button("📲 Send Automated SMS Notification to Absentee Guardians"):
-                st.success("✅ SMS Alerts dispatched to guardians: 'Your ward was not present during mandatory 09:30 PM hostel curfew check.'")
+    if a_count > 0 and st.session_state["user_role"] in ["ADMIN", "WARDEN"]:
+        st.warning(f"🚨 {a_count} student(s) marked ABSENT past curfew cutoff.")
+        if st.button("📲 Send Automated SMS Notification to Absentee Guardians"):
+            st.success("✅ SMS Alerts dispatched to guardians: 'Your ward was not present during mandatory 09:30 PM hostel curfew check.'")
 
 
 # ======================================================================================
-# 7. LEAVE & DIGITAL GATE PASS
+# 7. ADMIN / WARDEN: LEAVE & DIGITAL GATE PASS
 # ======================================================================================
 elif selected_menu == "✈️ Leave & Digital Gate Pass":
     st.title("✈️ Leave & Digital Gate Pass Management")
@@ -935,7 +1331,7 @@ elif selected_menu == "✈️ Leave & Digital Gate Pass":
 
 
 # ======================================================================================
-# 8. MESS & AI WASTE ANALYTICS
+# 8. ADMIN / WARDEN: MESS & AI WASTE ANALYTICS
 # ======================================================================================
 elif selected_menu == "🍲 Mess & AI Waste Analytics":
     st.title("🍲 Mess & AI Dining Waste Analytics")
@@ -949,7 +1345,6 @@ elif selected_menu == "🍲 Mess & AI Waste Analytics":
         sel_day = st.selectbox("Select Day of Week", days, index=days.index(today_name) if today_name in days else 0)
 
         menu_items = db.fetch_all("SELECT * FROM mess_menu WHERE day_of_week = ?", (sel_day,))
-        
         m_cols = st.columns(4)
         meal_icons = {"Breakfast": "🥞", "Lunch": "🍛", "Snacks": "☕", "Dinner": "🍲"}
 
@@ -969,12 +1364,10 @@ elif selected_menu == "🍲 Mess & AI Waste Analytics":
 
     with tab_ai_forecast:
         st.subheader("🧠 Predictive Meal Demand & Food Preparation Engine")
-        
         students_cnt = len(db.fetch_all("SELECT id FROM students"))
         leaves_cnt = len(db.fetch_all("SELECT id FROM leave_requests WHERE status = 'APPROVED'"))
         
         day_for_pred = st.selectbox("Forecast Day", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], key="pred_day")
-        
         pred = ai.predict_mess_demand(students_cnt, leaves_cnt, day_for_pred)
 
         st.markdown(f"""
@@ -1005,7 +1398,7 @@ elif selected_menu == "🍲 Mess & AI Waste Analytics":
 
 
 # ======================================================================================
-# 9. FEE & RISK DEFAULTERS
+# 9. ADMIN / WARDEN: FEE & RISK DEFAULTERS
 # ======================================================================================
 elif selected_menu == "💳 Fee & Risk Defaulters":
     st.title("💳 Hostel Fee & Defaulter Risk Analytics")
@@ -1027,21 +1420,19 @@ elif selected_menu == "💳 Fee & Risk Defaulters":
         st.metric("High-Risk Defaulter Accounts", f"{high_risk_count} Students")
 
     st.markdown("### 🔍 Risk Scored Resident Account Ledger")
-    
     df_fee = pd.DataFrame(analyzed_fees)
     if not df_fee.empty:
         st.dataframe(df_fee[['student_name', 'total_amount', 'amount_paid', 'amount_due', 'due_date', 'days_overdue', 'risk_level', 'risk_score', 'recommended_action']], use_container_width=True, hide_index=True)
 
 
 # ======================================================================================
-# 10. VISITOR LOG & SECURITY
+# 10. ADMIN / WARDEN: VISITOR LOG & SECURITY
 # ======================================================================================
 elif selected_menu == "🛡️ Visitor Log & Gate Security":
     st.title("🛡️ Campus Gate Security & Visitor Logging")
     st.caption("Real-time logging of parent/guest entries, exits, and security checkpoint clearance.")
 
     v1, v2 = st.columns([1, 1.5])
-
     with v1:
         st.subheader("Log New Visitor Entry")
         with st.form("new_visitor_form"):
@@ -1066,7 +1457,6 @@ elif selected_menu == "🛡️ Visitor Log & Gate Security":
     with v2:
         st.subheader("Active Visitors In Premises")
         active_visitors = db.fetch_all("SELECT * FROM visitors ORDER BY id DESC")
-        
         for v in active_visitors:
             v_badge = "badge-urgent" if v["status"] == "IN_PREMISES" else "badge-success"
             st.markdown(f"""
@@ -1090,7 +1480,7 @@ elif selected_menu == "🛡️ Visitor Log & Gate Security":
 
 
 # ======================================================================================
-# 11. NOTICE BOARD & BROADCASTS
+# 11. ADMIN / WARDEN: NOTICE BOARD & BROADCASTS
 # ======================================================================================
 elif selected_menu == "📢 Notice Board & Broadcasts":
     st.title("📢 Campus Notice Board & Emergency Broadcasts")
@@ -1134,30 +1524,658 @@ elif selected_menu == "📢 Notice Board & Broadcasts":
 
 
 # ======================================================================================
-# 12. AI HOSTEL ASSISTANT (CHATBOT)
+# 12. STUDENT: MY STUDENT DASHBOARD
+# ======================================================================================
+elif selected_menu == "🏠 My Student Dashboard":
+    sp = st.session_state.get("student_profile", {})
+    st.markdown(f"""
+    <div class="main-header">
+        <div>
+            <h1 style="margin: 0; font-size: 1.8rem; font-weight: 700;">Welcome back, {sp.get('name', st.session_state['logged_user'])}!</h1>
+            <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 0.95rem;">
+                Resident ID: <strong>{sp.get('student_id_code', 'STU')}</strong> • Department of {sp.get('department', 'Engineering')} (Year {sp.get('year', 1)})
+            </p>
+        </div>
+        <div style="text-align: right;">
+            <span class="badge-success" style="font-size: 0.85rem; padding: 6px 14px;">Resident Status: Active</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Student Summary KPIs
+    room_info = sp.get("room_details")
+    r_num = room_info["room_number"] if room_info else "Pending Allocation"
+    h_name = room_info["hostel_name"] if room_info else "Hostel Administration"
+
+    fee_info = sp.get("fee_details") or {}
+    due_amt = fee_info.get("amount_due", 0)
+    fee_stat = fee_info.get("status", "PAID")
+
+    active_pass = next((l for l in sp.get("leaves", []) if l["status"] == "APPROVED"), None)
+    active_complaints_cnt = sum(1 for c in sp.get("complaints", []) if c["status"] != "RESOLVED")
+
+    sk1, sk2, sk3, sk4 = st.columns(4)
+    with sk1:
+        st.markdown(f"""
+        <div class="metric-card">
+            <span style="font-size:0.8rem; color:#64748b; font-weight:600; text-transform:uppercase;">Room Allotment</span>
+            <h2 style="margin:8px 0 4px 0; color:#1e3c72; font-size:1.6rem;">{r_num}</h2>
+            <span style="font-size:0.8rem; color:#64748b;">{h_name}</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with sk2:
+        st.markdown(f"""
+        <div class="metric-card">
+            <span style="font-size:0.8rem; color:#64748b; font-weight:600; text-transform:uppercase;">Fee Dues</span>
+            <h2 style="margin:8px 0 4px 0; color:{'#16a34a' if due_amt == 0 else '#dc2626'}; font-size:1.6rem;">₹{due_amt:,.0f}</h2>
+            <span class="{'badge-success' if due_amt == 0 else 'badge-urgent'}">{fee_stat}</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with sk3:
+        st.markdown(f"""
+        <div class="metric-card">
+            <span style="font-size:0.8rem; color:#64748b; font-weight:600; text-transform:uppercase;">Active Gate Pass</span>
+            <h2 style="margin:8px 0 4px 0; color:#0284c7; font-size:1.4rem;">{active_pass['gate_pass_code'] if active_pass else 'None'}</h2>
+            <span style="font-size:0.8rem; color:#64748b;">{'Valid for Outstation' if active_pass else 'On Campus'}</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with sk4:
+        st.markdown(f"""
+        <div class="metric-card">
+            <span style="font-size:0.8rem; color:#64748b; font-weight:600; text-transform:uppercase;">Open Grievances</span>
+            <h2 style="margin:8px 0 4px 0; color:#f59e0b; font-size:1.6rem;">{active_complaints_cnt}</h2>
+            <span style="font-size:0.8rem; color:#64748b;">Maintenance tickets</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Active Pass QR Spotlight if approved
+    if active_pass:
+        st.markdown(f"""
+        <div class="gate-pass-box" style="margin-bottom: 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0; color:#38bdf8;">🎫 Your Active Digital Gate Pass</h3>
+                <span class="badge-success">AUTHORIZED BY WARDEN</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <strong>Pass Code:</strong> <span style="color:#facc15; font-family:monospace; font-size:1.2rem;">{active_pass['gate_pass_code']}</span><br>
+                    <strong>Valid Dates:</strong> {active_pass['from_date']} to {active_pass['to_date']}<br>
+                    <strong>Reason:</strong> {active_pass['reason']}
+                </div>
+                <div style="background:white; padding:6px; border-radius:8px; text-align:center;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data={active_pass['gate_pass_code']}" style="width:90px; height:90px;" alt="QR" />
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Roommates & Lifestyle Card
+    row_c1, row_c2 = st.columns([1.2, 1])
+    with row_c1:
+        st.subheader("🚪 Room Details & Roommates")
+        if room_info:
+            st.markdown(f"""
+            <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:18px;">
+                <h4 style="margin:0 0 6px 0; color:#1e3c72;">Room {room_info['room_number']} ({room_info['hostel_name']} - {room_info['block_name']})</h4>
+                <div style="font-size:0.88rem; color:#475569; margin-bottom:10px;">
+                    ✨ Amenities: {room_info['amenities'] or 'Standard'} • Capacity: {room_info['capacity']} Beds • Floor: {room_info['floor_number']}
+                </div>
+                <hr style="margin:10px 0; border:none; border-top:1px solid #f1f5f9;">
+                <strong>Roommates:</strong>
+            """, unsafe_allow_html=True)
+            roommates = sp.get("roommates", [])
+            if roommates:
+                for rm in roommates:
+                    st.markdown(f"- 👤 **{rm['name']}** (Year {rm['year']} {rm['department']}) • 📞 {rm['phone']}")
+            else:
+                st.info("You currently have single occupancy or roommates are not yet allocated.")
+            st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            st.warning("You are not yet allocated to a room. The Chief Administrator will assign you shortly using the AI Room Matcher.")
+
+    with row_c2:
+        st.subheader("📢 Latest Hostel Notice")
+        top_notice = db.fetch_one("SELECT * FROM notices ORDER BY id DESC LIMIT 1")
+        if top_notice:
+            st.markdown(f"""
+            <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:18px;">
+                <span class="badge-info">{top_notice['category']}</span>
+                <h4 style="margin:8px 0 4px 0; color:#1e293b;">{top_notice['title']}</h4>
+                <p style="font-size:0.88rem; color:#475569; margin:6px 0;">{top_notice['content']}</p>
+                <div style="font-size:0.75rem; color:#94a3b8;">Posted by {top_notice['posted_by']} • {top_notice['posted_at']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+
+# ======================================================================================
+# 13. STUDENT: MY ROOM & ROOMMATES
+# ======================================================================================
+elif selected_menu == "🚪 My Room & Roommates":
+    sp = st.session_state.get("student_profile", {})
+    st.title("🚪 My Room & Resident Roommates")
+    st.caption("View your assigned room specifications, amenities, and roommate compatibility.")
+
+    room_info = sp.get("room_details")
+    if room_info:
+        r1, r2 = st.columns([1, 1.2])
+        with r1:
+            st.markdown(f"""
+            <div style="background:white; border:1px solid #e2e8f0; border-radius:14px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2 style="margin:0; color:#1e3c72;">Room {room_info['room_number']}</h2>
+                    <span class="badge-info">{room_info['room_type']} Room</span>
+                </div>
+                <div style="font-size:0.9rem; color:#64748b; margin:6px 0 14px 0;">
+                    {room_info['hostel_name']} • {room_info['block_name']} • Floor {room_info['floor_number']}
+                </div>
+                <hr style="margin:10px 0; border:none; border-top:1px solid #f1f5f9;">
+                <div style="font-size:0.9rem; line-height:1.7; color:#334155;">
+                    🛏️ <strong>Beds:</strong> {room_info['occupied_beds']} / {room_info['capacity']} Occupied<br>
+                    💵 <strong>Monthly Rent:</strong> ₹{room_info['rent_per_month']:,.0f}<br>
+                    ✨ <strong>Amenities:</strong> {room_info['amenities'] or 'Standard'}<br>
+                    🛡️ <strong>Hostel Warden:</strong> Dr. Rajesh Sharma (+91 98765 43210)
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with r2:
+            st.subheader("👥 Your Roommates")
+            roommates = sp.get("roommates", [])
+            if roommates:
+                for rm in roommates:
+                    st.markdown(f"""
+                    <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between;">
+                            <strong>👤 {rm['name']}</strong>
+                            <span class="badge-success">Resident</span>
+                        </div>
+                        <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">
+                            🆔 {rm.get('student_id_code', 'STU')} • {rm['department']} (Year {rm['year']})<br>
+                            📞 Phone: {rm['phone']} • ✉️ {rm.get('email', 'N/A')}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.info("No roommates assigned yet.")
+    else:
+        st.warning("You currently do not have a room assigned. Please contact the Hostel Warden office or check back once the AI allocator runs.")
+
+
+# ======================================================================================
+# 14. STUDENT: APPLY LEAVE & ACTIVE GATE PASS
+# ======================================================================================
+elif selected_menu == "✈️ Apply Leave & Active Gate Pass":
+    sp = st.session_state.get("student_profile", {})
+    st.title("✈️ Outstation Leave & Digital QR Gate Pass")
+    st.caption("Apply for leave, track warden approvals in real time, and present your encrypted QR code at security checkpoints.")
+
+    tab_my_reqs, tab_new_req = st.tabs(["🎫 My Gate Passes & Requests", "📝 Submit New Leave Application"])
+
+    with tab_new_req:
+        st.subheader("Submit Outstation / Weekend Permission")
+        with st.form("stu_apply_leave"):
+            st.text_input("Resident Full Name", value=sp.get("name", st.session_state["logged_user"]), disabled=True)
+            st.text_input("Student Roll Code", value=sp.get("student_id_code", "STU"), disabled=True)
+
+            col_d1, col_d2 = st.columns(2)
+            with col_d1:
+                leave_from = st.date_input("Departure Date", value=date.today())
+            with col_d2:
+                leave_to = st.date_input("Return Date", value=date.today() + timedelta(days=2))
+
+            leave_reason = st.text_area("Reason & Destination for Outstation Leave", placeholder="e.g. Visiting parents in Pune / Attending technical symposium at IIT Bombay")
+
+            if st.form_submit_button("🚀 Submit for Warden Approval", use_container_width=True):
+                if not leave_reason.strip():
+                    st.warning("Please provide a reason for the leave.")
+                else:
+                    now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+                    r_no = f"Room {sp.get('room_details', {}).get('room_number', 'Unassigned')}" if sp.get("room_details") else "Unassigned"
+                    db.execute_query("""
+                    INSERT INTO leave_requests (student_id, student_name, room_number, reason, from_date, to_date, status, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, 'PENDING', ?)
+                    """, (sp.get("id"), sp.get("name", st.session_state["logged_user"]), r_no, leave_reason, leave_from.strftime("%Y-%m-%d"), leave_to.strftime("%Y-%m-%d"), now_str))
+                    st.success("🎉 Leave application submitted! Your Warden will review and issue your digital QR pass.")
+                    st.rerun()
+
+    with tab_my_reqs:
+        st.subheader("My Past & Active Leave Requests")
+        my_leaves = db.fetch_all("SELECT * FROM leave_requests WHERE student_id = ? ORDER BY id DESC", (sp.get("id"),))
+        
+        if my_leaves:
+            for pl in my_leaves:
+                if pl["status"] == "APPROVED":
+                    st.markdown(f"""
+                    <div class="gate-pass-box" style="margin-bottom:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3 style="margin:0; color:#38bdf8;">🎫 ACTIVE GATE PASS: {pl['gate_pass_code']}</h3>
+                            <span class="badge-success">APPROVED</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-top:12px; flex-wrap:wrap; gap:16px;">
+                            <div style="font-size:0.9rem;">
+                                📅 <strong>Valid:</strong> {pl['from_date']} to {pl['to_date']}<br>
+                                🎯 <strong>Reason:</strong> {pl['reason']}<br>
+                                🔒 <strong>Approved By:</strong> {pl['approved_by']}
+                            </div>
+                            <div style="background:white; padding:6px; border-radius:8px;">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data={pl['gate_pass_code']}" style="width:90px; height:90px;" alt="QR" />
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st_badge = "badge-high" if pl["status"] == "PENDING" else "badge-urgent"
+                    st.markdown(f"""
+                    <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between;">
+                            <strong>📅 {pl['from_date']} to {pl['to_date']}</strong>
+                            <span class="{st_badge}">{pl['status']}</span>
+                        </div>
+                        <div style="font-size:0.88rem; color:#475569; margin-top:4px;">
+                            Reason: {pl['reason']}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+        else:
+            st.info("You haven't submitted any leave requests yet.")
+
+
+# ======================================================================================
+# 15. STUDENT: FILE & TRACK COMPLAINTS (AI TRIAGE)
+# ======================================================================================
+elif selected_menu == "🛠️ File & Track Complaints (AI Triage)":
+    sp = st.session_state.get("student_profile", {})
+    st.title("🛠️ Resident Grievance & Maintenance Center")
+    st.caption("Submit maintenance tickets in natural language. The AI triage engine automatically assigns priority, category, and maintenance routing.")
+
+    tab_my_c, tab_new_c = st.tabs(["📋 My Submitted Complaints", "📝 File New Complaint"])
+
+    with tab_new_c:
+        st.subheader("Report a Facility or Room Maintenance Issue")
+        with st.form("stu_file_complaint"):
+            r_no = sp.get("room_details", {}).get("room_number", "Room Corridor") if sp.get("room_details") else "Main Corridor"
+            st.text_input("Your Room / Location", value=r_no, disabled=True)
+            c_title = st.text_input("Headline / Brief Title", placeholder="e.g. Geyser in bathroom not heating water")
+            c_desc = st.text_area("Detailed Problem Description (Natural Language)", placeholder="Describe what is broken or not working. The AI engine will parse urgency and dispatch technicians.", height=120)
+
+            if st.form_submit_button("🚀 Run AI Triage & Submit Grievance", use_container_width=True):
+                if not c_desc.strip():
+                    st.warning("Please provide a description of the grievance.")
+                else:
+                    ai_res = ai.analyze_complaint(c_desc)
+                    now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+                    cid = db.execute_query("""
+                    INSERT INTO complaints (student_id, student_name, room_number, category, title, description, priority, sentiment, status, department, suggested_action, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'OPEN', ?, ?, ?)
+                    """, (sp.get("id"), sp.get("name", st.session_state["logged_user"]), r_no, ai_res['category'], c_title or ai_res['summary'], c_desc, ai_res['priority'], ai_res['sentiment'], ai_res['department'], ai_res['suggested_action'], now_str))
+
+                    st.success(f"🎉 Ticket #{cid} submitted! Categorized by AI as '{ai_res['category']}' with '{ai_res['priority']}' priority.")
+                    st.rerun()
+
+    with tab_my_c:
+        st.subheader("Your Grievance History")
+        my_comps = db.fetch_all("SELECT * FROM complaints WHERE student_id = ? ORDER BY id DESC", (sp.get("id"),))
+
+        if my_comps:
+            for c in my_comps:
+                p_badge = "badge-urgent" if c["priority"] == "URGENT" else ("badge-high" if c["priority"] == "HIGH" else "badge-info")
+                s_badge = "badge-success" if c["status"] == "RESOLVED" else ("badge-info" if c["status"] == "IN_PROGRESS" else "badge-urgent")
+
+                st.markdown(f"""
+                <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h4 style="margin:0; color:#1e293b;">#{c['id']} - {c['title']}</h4>
+                        <div>
+                            <span class="{p_badge}">{c['priority']}</span>
+                            <span class="{s_badge}">{c['status']}</span>
+                        </div>
+                    </div>
+                    <div style="font-size:0.85rem; color:#64748b; margin:4px 0;">
+                        🏷️ Category: <strong>{c['category']}</strong> • 🕒 Filed on {c['created_at']}
+                    </div>
+                    <p style="font-size:0.9rem; color:#334155; margin:6px 0; background:#f8fafc; padding:8px 12px; border-radius:8px;">
+                        "{c['description']}"
+                    </p>
+                    <div style="font-size:0.82rem; color:#0284c7;">
+                        🤖 <strong>AI Action Note:</strong> {c['suggested_action']}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("You haven't filed any maintenance complaints.")
+
+
+# ======================================================================================
+# 16. STUDENT: MESS MENU & DAILY SCHEDULE
+# ======================================================================================
+elif selected_menu == "🍲 Mess Menu & Daily Schedule":
+    st.title("🍲 Campus Dining & Daily Mess Menu")
+    st.caption("View nutritional meal schedules, specials, and calorie counts for the week.")
+
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    today_name = datetime.now().strftime("%A")
+    sel_day = st.selectbox("Select Day of Week", days, index=days.index(today_name) if today_name in days else 0)
+
+    menu_items = db.fetch_all("SELECT * FROM mess_menu WHERE day_of_week = ?", (sel_day,))
+    m_cols = st.columns(4)
+    meal_icons = {"Breakfast": "🥞", "Lunch": "🍛", "Snacks": "☕", "Dinner": "🍲"}
+
+    for idx, meal_type in enumerate(["Breakfast", "Lunch", "Snacks", "Dinner"]):
+        item = next((m for m in menu_items if m["meal_type"] == meal_type), None)
+        with m_cols[idx]:
+            if item:
+                st.markdown(f"""
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; height: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <h4 style="margin:0 0 6px 0; color:#1e3c72;">{meal_icons.get(meal_type, '')} {meal_type}</h4>
+                    <div style="font-size: 0.85rem; color: #16a34a; font-weight: 600; margin-bottom: 8px;">🔥 {item['calories']} kcal</div>
+                    <p style="font-size: 0.85rem; color: #334155; min-height: 50px;">{item['items']}</p>
+                    <hr style="border-top: 1px dashed #e2e8f0; margin: 8px 0;">
+                    <span style="font-size: 0.75rem; color: #64748b;">✨ Special: <strong>{item['special_item']}</strong></span>
+                </div>
+                """, unsafe_allow_html=True)
+
+
+# ======================================================================================
+# 17. STUDENT: MY FEE STATUS & RECEIPTS
+# ======================================================================================
+elif selected_menu == "💳 My Fee Status & Receipts":
+    sp = st.session_state.get("student_profile", {})
+    st.title("💳 Hostel Fee Status & Payment Ledger")
+    st.caption("Review your semester hostel fees, payments, dues, and transaction receipts.")
+
+    fee_info = sp.get("fee_details")
+    if fee_info:
+        fk1, fk2, fk3 = st.columns(3)
+        with fk1:
+            st.metric("Total Semester Fee", f"₹{fee_info['total_amount']:,.0f}")
+        with fk2:
+            st.metric("Amount Paid", f"₹{fee_info['amount_paid']:,.0f}")
+        with fk3:
+            st.metric("Due Balance", f"₹{fee_info['amount_due']:,.0f}")
+
+        st.markdown(f"""
+        <div style="background:white; border:1px solid #e2e8f0; border-radius:14px; padding:20px; margin-top:16px;">
+            <h4 style="margin:0 0 10px 0; color:#1e3c72;">Receipt & Payment Details</h4>
+            <table style="width:100%; font-size:0.9rem; color:#334155; line-height:2;">
+                <tr><td><strong>Account Status:</strong></td><td><span class="{'badge-success' if fee_info['amount_due'] == 0 else 'badge-urgent'}">{fee_info['status']}</span></td></tr>
+                <tr><td><strong>Due Date:</strong></td><td>{fee_info['due_date']}</td></tr>
+                <tr><td><strong>Last Payment Date:</strong></td><td>{fee_info['last_payment_date'] or 'N/A'}</td></tr>
+                <tr><td><strong>Transaction Ref:</strong></td><td><code>{fee_info['transaction_ref'] or 'N/A'}</code></td></tr>
+            </table>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.info("No fee record found for your account.")
+
+
+# ======================================================================================
+# 18. STUDENT / SECURITY: CAMPUS NOTICES & CIRCULARS
+# ======================================================================================
+elif selected_menu in ["📢 Campus Notices & Circulars", "📢 Campus Emergency Broadcasts"]:
+    st.title("📢 Campus Notices & Administrative Circulars")
+    st.caption("Official hostel circulars, emergency announcements, and mess updates.")
+
+    all_notices = db.fetch_all("SELECT * FROM notices ORDER BY id DESC")
+    for n in all_notices:
+        p_badge = "badge-urgent" if n["priority"] == "URGENT" else ("badge-high" if n["priority"] == "HIGH" else "badge-info")
+        st.markdown(f"""
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin: 0; color: #1e3c72; font-size: 1.2rem;">{n['title']}</h3>
+                <span class="{p_badge}">{n['priority']}</span>
+            </div>
+            <div style="font-size: 0.85rem; color: #64748b; margin: 6px 0 12px 0;">
+                Category: <strong>{n['category']}</strong> • Audience: <strong>{n['target_audience']}</strong> • Posted by: <strong>{n['posted_by']}</strong> • {n['posted_at']}
+            </div>
+            <p style="font-size: 0.95rem; color: #334155; line-height: 1.6;">{n['content']}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+# ======================================================================================
+# 19. SECURITY: GATE PASS QR SCANNER & VERIFIER
+# ======================================================================================
+elif selected_menu == "🎫 Gate Pass QR Scanner & Verifier":
+    st.title("🎫 Security Gate Turnstile Pass Verification")
+    st.caption("Verify digital QR gate passes and record student check-out / check-in events.")
+
+    sc1, sc2 = st.columns([1, 1.2])
+    with sc1:
+        st.subheader("Manual / Barcode Scanner Input")
+        pass_code_input = st.text_input("Enter Gate Pass Code (e.g. GP-2026-9812)", placeholder="GP-2026-xxxx")
+        
+        if st.button("🔍 Verify Gate Pass Authenticity", use_container_width=True):
+            if pass_code_input.strip():
+                match = db.fetch_one("SELECT * FROM leave_requests WHERE UPPER(gate_pass_code) = ?", (pass_code_input.strip().upper(),))
+                if match:
+                    if match["status"] == "APPROVED":
+                        st.success(f"✅ PASS VALID: {match['student_name']} is authorized to exit from {match['from_date']} to {match['to_date']}.")
+                    else:
+                        st.error(f"❌ PASS INVALID: Status is {match['status']}.")
+                else:
+                    st.error("❌ Invalid Gate Pass Code: No matching record found in database.")
+
+    with sc2:
+        st.subheader("Recent Approved Gate Passes")
+        recent_p = db.fetch_all("SELECT * FROM leave_requests WHERE status = 'APPROVED' ORDER BY id DESC LIMIT 5")
+        for rp in recent_p:
+            st.markdown(f"- 🎫 **{rp['gate_pass_code']}**: {rp['student_name']} ({rp['room_number']}) — Valid until {rp['to_date']}")
+
+
+# ======================================================================================
+# 20. SECURITY: CURFEW & NIGHT CHECK-IN LOG
+# ======================================================================================
+elif selected_menu == "📅 Curfew & Night Check-In Log":
+    st.title("📅 Night Curfew & Biometric Check-In Turnstile")
+    st.caption("Monitor night entries past 09:30 PM curfew and log turnstile biometric punches.")
+
+    records = db.fetch_all("SELECT * FROM attendance ORDER BY id DESC LIMIT 50")
+    df_att = pd.DataFrame(records)
+    if not df_att.empty:
+        st.dataframe(df_att[['student_id', 'student_name', 'room_number', 'date', 'status', 'check_in_time', 'check_out_time', 'marked_by']], use_container_width=True, hide_index=True)
+
+
+# ======================================================================================
+# 21. SECURITY: VISITOR ENTRY & CHECK-OUT REGISTRY
+# ======================================================================================
+elif selected_menu == "🛡️ Visitor Entry & Check-Out Registry":
+    st.title("🛡️ Campus Security Visitor In/Out Log")
+    st.caption("Record and verify external guest visits, deliveries, and parent meetings.")
+
+    v_all = db.fetch_all("SELECT * FROM visitors ORDER BY id DESC")
+    for v in v_all:
+        v_badge = "badge-urgent" if v["status"] == "IN_PREMISES" else "badge-success"
+        st.markdown(f"""
+        <div style="background: white; border: 1px solid #e2e8f0; padding: 14px; border-radius: 10px; margin-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between;">
+                <strong>{v['visitor_name']} ({v['relation']})</strong>
+                <span class="{v_badge}">{v['status']}</span>
+            </div>
+            <div style="font-size: 0.85rem; color: #64748b; margin: 4px 0;">
+                Visiting: <strong>{v['student_name']}</strong> • 📞 {v['phone']}
+            </div>
+            <div style="font-size: 0.8rem; color: #334155;">
+                🕒 Entered: {v['entry_time']} {f'| Exited: {v["exit_time"]}' if v['exit_time'] else ''}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        if v["status"] == "IN_PREMISES" and st.button(f"Mark Check-Out", key=f"sec_v_out_{v['id']}"):
+            db.execute_query("UPDATE visitors SET status = 'CHECKED_OUT', exit_time = ? WHERE id = ?", (datetime.now().strftime("%Y-%m-%d %H:%M"), v["id"]))
+            st.rerun()
+
+
+# ======================================================================================
+# 22. ADVANCED AI HOSTEL ASSISTANT (CHATBOT)
 # ======================================================================================
 elif selected_menu == "🤖 AI Hostel Assistant (Chatbot)":
-    st.title("🤖 24x7 AI Hostel Assistant")
-    st.caption("Ask questions in natural language about hostel rules, mess schedules, fee deadlines, gate passes, and room facilities.")
+    st.markdown("""
+    <div class="main-header">
+        <div>
+            <h1 style="margin: 0; font-size: 1.8rem; font-weight: 700;">🤖 24x7 Intelligent Campus AI Assistant</h1>
+            <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 0.95rem;">
+                Autonomous RAG Engine grounded in real-time hostel databases, room pairings, gate passes, and mess schedules.
+            </p>
+        </div>
+        <div style="text-align: right;">
+            <span class="badge-success" style="font-size: 0.85rem; padding: 6px 14px;">🟢 Real-Time Database Grounded</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Display chat history
+    # Optional AI Engine Configuration Expander
+    with st.expander("⚙️ Advanced AI Engine & Provider Configuration (Optional LLM Integration)"):
+        cfg_c1, cfg_c2, cfg_c3 = st.columns(3)
+        with cfg_c1:
+            custom_provider_url = st.text_input(
+                "OpenAI-Compatible / Gemini API URL", 
+                value=os.environ.get("AI_PROVIDER_URL", ""),
+                placeholder="https://api.openai.com/v1/chat/completions"
+            )
+        with cfg_c2:
+            custom_api_key = st.text_input(
+                "API Key (Never hard-coded)", 
+                value=os.environ.get("AI_API_KEY", ""),
+                type="password",
+                placeholder="sk-..."
+            )
+        with cfg_c3:
+            custom_model = st.text_input(
+                "Model Identifier", 
+                value=os.environ.get("AI_MODEL", "gpt-4o-mini"),
+                placeholder="gpt-4o-mini / gemini-1.5-flash / llama-3.3-70b"
+            )
+
+        st.caption("💡 *If no external API is configured, the assistant seamlessly runs on the local Autonomous Domain RAG Engine with 0% latency.*")
+
+    # Interactive Quick-Prompt Suggestion Pills based on user role
+    st.markdown("**⚡ Quick Prompts & Grounded Query Actions:**")
+    u_role = st.session_state.get("user_role", "STUDENT")
+    quick_query = None
+    
+    if u_role == "STUDENT":
+        q_col1, q_col2, q_col3, q_col4 = st.columns(4)
+
+        with q_col1:
+            if st.button("🍲 Sunday Dum Biryani", use_container_width=True):
+                quick_query = "What is on the mess menu for Sunday lunch?"
+            if st.button("🚪 My Room & Roommates", use_container_width=True):
+                quick_query = "Who are my roommates and what are my room details?"
+
+        with q_col2:
+            if st.button("💳 My Fee Statement", use_container_width=True):
+                quick_query = "What is my fee payment status and due balance?"
+            if st.button("✈️ Active Gate Pass", use_container_width=True):
+                quick_query = "What is the status of my latest leave request and gate pass?"
+
+        with q_col3:
+            if st.button("📢 Latest Notices", use_container_width=True):
+                quick_query = "Show me the latest campus hostel notices and circulars."
+            if st.button("🕒 Curfew Rules (09:30 PM)", use_container_width=True):
+                quick_query = "What are the night curfew hours and late entry rules?"
+
+        with q_col4:
+            if st.button("🚨 Emergency Directory", use_container_width=True):
+                quick_query = "Give me emergency contacts for Warden, Security, and Campus Medical Centre."
+            if st.button("🧹 Clear Chat History", use_container_width=True):
+                st.session_state["chat_history"] = [
+                    {"role": "assistant", "content": "👋 Chat history cleared. How can I help you today?"}
+                ]
+                st.rerun()
+
+    else: # ADMIN, WARDEN, SECURITY
+        q_col1, q_col2, q_col3, q_col4 = st.columns(4)
+
+        with q_col1:
+            if st.button("📊 Real-Time Campus Stats", use_container_width=True):
+                quick_query = "Give me an overview of hostel stats, occupancy, and open complaints."
+            if st.button("⚠️ Outstanding Fee Defaulters", use_container_width=True):
+                quick_query = "Who has overdue fees and unpaid semester balances?"
+
+        with q_col2:
+            if st.button("🏢 Search Room A-101", use_container_width=True):
+                quick_query = "Who is in room A-101 and what are the room features?"
+            if st.button("🎓 Student STU-1041 Profile", use_container_width=True):
+                quick_query = "Tell me about student STU-1041"
+
+        with q_col3:
+            if st.button("📢 Campus Notices Board", use_container_width=True):
+                quick_query = "Show me the latest campus hostel notices."
+            if st.button("✈️ Students On Leave", use_container_width=True):
+                quick_query = "How many students are currently on approved outstation leave?"
+
+        with q_col4:
+            if st.button("🍲 Full Dining Menu", use_container_width=True):
+                quick_query = "What is the complete mess menu for today?"
+            if st.button("🧹 Clear Chat History", use_container_width=True):
+                st.session_state["chat_history"] = [
+                    {"role": "assistant", "content": "👋 Chat history cleared. How can I help you today?"}
+                ]
+                st.rerun()
+
+    # Helpful prompt syntax guide
+    with st.expander("💡 Natural Language Query Examples (Grounded Database Actions)"):
+        st.markdown("""
+        - 🔍 **Room Lookup:** *"Who is in room G-102?"* or *"Tell me about room R-101"*
+        - 👨‍🎓 **Student Search:** *"Tell me about student STU-1006"* or *"Show profile for Aarav Sharma"*
+        - 🍲 **Mess Meals:** *"What is for lunch on Wednesday?"* or *"Friday dinner special item"*
+        - 💳 **Fee Analysis:** *"Show me fee defaulters"* or *"Who has not paid fees?"*
+        - 🛠️ **Direct Ticket Creation:** Type `Report issue: Exhaust fan making loud noise in room A-202`
+        - 🚨 **Emergencies:** *"Medical emergency contacts"* or *"Warden phone numbers"*
+        """)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Process Quick Query if clicked
+    if quick_query:
+        st.session_state["chat_history"].append({"role": "user", "content": quick_query})
+        user_ctx = {
+            "user_role": st.session_state.get("user_role", "STUDENT"),
+            "logged_user": st.session_state.get("logged_user", "Resident"),
+            "student_profile": st.session_state.get("student_profile", {})
+        }
+        ai_reply = ai.generate_chat_response(
+            quick_query, 
+            user_context=user_ctx,
+            api_url=custom_provider_url,
+            api_key=custom_api_key,
+            model_name=custom_model
+        )
+        st.session_state["chat_history"].append({"role": "assistant", "content": ai_reply})
+        st.rerun()
+
+    # Display Chat Timeline
     for msg in st.session_state["chat_history"]:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # User Input
-    if prompt := st.chat_input("Ask a question (e.g. 'What are the night curfew rules?', 'How to apply for gate pass?', 'What is today's dinner?')..."):
-        # Append user message
+    # Natural Language Chat Input
+    if prompt := st.chat_input("Ask a question (e.g. 'What is today's dinner?', 'Who is my roommate?', 'Report issue: Tap leaking in bathroom')..."):
         st.session_state["chat_history"].append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generate AI response
-        with st.spinner("AI is thinking..."):
-            ai_reply = ai.generate_chat_response(prompt)
+        user_ctx = {
+            "user_role": st.session_state.get("user_role", "STUDENT"),
+            "logged_user": st.session_state.get("logged_user", "Resident"),
+            "student_profile": st.session_state.get("student_profile", {})
+        }
+
+        with st.spinner("AI Assistant is retrieving campus records..."):
+            ai_reply = ai.generate_chat_response(
+                prompt,
+                user_context=user_ctx,
+                api_url=custom_provider_url,
+                api_key=custom_api_key,
+                model_name=custom_model
+            )
         
         st.session_state["chat_history"].append({"role": "assistant", "content": ai_reply})
         with st.chat_message("assistant"):
             st.markdown(ai_reply)
-
 

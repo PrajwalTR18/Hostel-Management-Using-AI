@@ -306,36 +306,32 @@ def calculate_defaulter_risk(fee_records: list) -> list:
 
 
 # --------------------------------------------------------------------------------------
-# 4. CONVERSATIONAL AI HOSTEL ASSISTANT
+# 4. CONVERSATIONAL AI HOSTEL ASSISTANT WITH REAL-TIME DATABASE GROUNDING
 # --------------------------------------------------------------------------------------
 
 HOSTEL_KNOWLEDGE_BASE = [
     {
         "keywords": ["hi", "hello", "hey", "who are you", "what can you do", "help", "about", "assist", "good morning", "good evening"],
-        "answer": "👋 **Hello! I am your AI Hostel Assistant.**\n\nI can help you with:\n- 🕒 **Hostel & Curfew Rules:** Night roll-call & gate timings\n- ✈️ **Leave & Gate Pass:** Digital passes with QR verification\n- 🛠️ **Maintenance Complaints:** NLP-categorized plumbing, electrical, WiFi repair tickets\n- 🍲 **Mess & Dining:** Daily meals, timings, calories & special items\n- 💳 **Fee & Payments:** Dues, deadlines, receipts & accounts\n- 🎯 **Room Allocation:** Compatibility scoring & room swaps\n- 🚨 **Emergency Directory:** Warden, Security & Medical contacts\n\n*Feel free to ask any question!*"
+        "answer": "👋 **Hello! I am your AI Hostel Assistant.**\n\nI am connected to real-time campus databases and can assist you with:\n- 🍲 **Mess & Dining:** Today's menu, nutrition, meal timings & specials\n- 🚪 **My Room & Roommates:** Allocation status, bed details & contact info\n- 🕒 **Hostel & Curfew Rules:** 09:30 PM gate cutoff & biometric attendance\n- ✈️ **Leave & Gate Pass:** Digital QR passes & Warden approvals\n- 🛠️ **Maintenance Complaints:** NLP ticket triage & technician dispatch\n- 💳 **Fee & Payments:** Dues, payment deadlines & transaction receipts\n- 📊 **Campus Intelligence:** Live occupancy & maintenance stats (Admins)\n- 🚨 **Emergency Directory:** Warden, Security & Medical helplines\n\n*What would you like to know?*"
     },
     {
         "keywords": ["curfew", "night", "timing", "gate close", "in-time", "late", "entry", "night out", "hours"],
-        "answer": "🕒 **Hostel Timings & Night Curfew Policy:**\n- **Main Campus Gate Cutoff:** **09:30 PM** sharp for all resident blocks.\n- **Night Biometric Attendance:** Taken between **09:00 PM – 09:45 PM** daily.\n- **Late Entry Rule:** Entering after 09:30 PM requires an approved **Digital Gate Pass** signed by your Warden. Unauthorized late entries trigger automated notification to parents."
+        "answer": "🕒 **Hostel Timings & Night Curfew Policy:**\n- **Main Campus Gate Cutoff:** **09:30 PM** sharp for all resident blocks.\n- **Night Biometric Attendance:** Taken between **09:00 PM – 09:45 PM** daily at the turnstile.\n- **Late Entry Rule:** Entering after 09:30 PM requires an approved **Digital Gate Pass** signed by your Warden. Unauthorized late entries trigger automated notification to parents."
     },
     {
         "keywords": ["leave", "gate pass", "outstation", "home", "permission", "vacation", "pass", "qr", "apply leave"],
-        "answer": "✈️ **Leave & Digital Gate Pass Application:**\n1. Go to the **Leave & Digital Gate Pass** tab on the left sidebar.\n2. Enter departure & return dates along with your reason.\n3. Your Warden receives the request in real-time. Once approved, an instant **QR Code Gate Pass** is generated on screen.\n4. Show the QR code to the turnstile scanner at the main security gate."
+        "answer": "✈️ **Leave & Digital Gate Pass Application:**\n1. Go to the **Leave & Digital Gate Pass** tab on the left sidebar.\n2. Enter departure & return dates along with your destination reason.\n3. Your Warden receives the request in real-time. Once approved, an instant **QR Code Gate Pass** is generated on screen.\n4. Show the QR code to the turnstile scanner at the main security gate."
     },
     {
         "keywords": ["complaint", "repair", "plumber", "electrician", "leak", "clean", "tap", "fan", "light", "water", "geyser", "socket", "maintenance", "broken", "dirty"],
-        "answer": "🛠️ **Filing & Tracking Maintenance Grievances:**\n- Navigate to the **AI Complaints & Triage** section.\n- Type your issue in natural language (e.g., *'Washbasin pipe leaking'* or *'Tube light sparking'*).\n- Our **NLP AI Triage Engine** automatically categorizes the grievance, assesses urgency (SLA: 2–24 hrs), and routes it to the duty technician."
-    },
-    {
-        "keywords": ["mess", "food", "menu", "timings", "meal", "breakfast", "dinner", "lunch", "snacks", "diet", "veg", "non veg", "calories", "eating", "dining"],
-        "answer": "🍲 **Mess Timings & Dining Schedule:**\n- **Breakfast:** 07:30 AM – 09:15 AM\n- **Lunch:** 12:30 PM – 02:15 PM\n- **Evening Snacks:** 05:00 PM – 06:15 PM\n- **Dinner:** 07:45 PM – 09:30 PM\n*Check the **Mess & AI Waste Analytics** tab to view today's complete 4-meal nutritional menu!*"
+        "answer": "🛠️ **Filing & Tracking Maintenance Grievances:**\n- Navigate to the **AI Complaints & Triage** section or type *'Report issue: [description]'* here in chat.\n- Our **NLP AI Triage Engine** automatically categorizes the grievance, assesses urgency (SLA: 2–24 hrs), and routes it to the duty technician."
     },
     {
         "keywords": ["fee", "payment", "due", "dues", "installment", "receipt", "fine", "online payment", "upi", "bank", "cost", "rent"],
-        "answer": "💳 **Hostel Fee & Payment Guidelines:**\n- Semester room & mess dues must be cleared by the **15th** of each semester cycle.\n- You can inspect your payment status and download receipts in the **Fee & Risk Defaulters** ledger.\n- Accepted modes: UPI, Net Banking, NEFT/RTGS, and Debit/Credit card."
+        "answer": "💳 **Hostel Fee & Payment Guidelines:**\n- Semester room & mess dues must be cleared by the **15th** of each semester cycle.\n- You can inspect your payment status and download receipts in the **Fee Status** ledger.\n- Accepted modes: UPI, Net Banking, NEFT/RTGS, and Debit/Credit card."
     },
     {
-        "keywords": ["room change", "swap", "allocate", "single room", "double", "triple", "roommate", "occupancy", "vacancy", "bed", "allotment"],
+        "keywords": ["room change", "swap", "allocate", "single room", "double", "triple", "occupancy", "vacancy", "bed", "allotment"],
         "answer": "🎯 **Room Allocation & Compatibility Engine:**\n- View available rooms and match scores in the **AI Smart Room Allocation** tab.\n- Our algorithm matches students based on **Sleep Schedule (Early Bird vs Night Owl)**, **Study Habits**, **Cleanliness**, and **Year/Department synergy** to ensure optimal compatibility."
     },
     {
@@ -364,35 +360,346 @@ HOSTEL_KNOWLEDGE_BASE = [
     }
 ]
 
-def generate_chat_response(query: str, api_url: str = None, api_key: str = None, model_name: str = None) -> str:
+
+def generate_chat_response(
+    query: str, 
+    user_context: dict = None,
+    api_url: str = None, 
+    api_key: str = None, 
+    model_name: str = None
+) -> str:
     """
-    Answers student or administrator queries using LLM if configured, 
-    or built-in AI retrieval engine. Guaranteed 0% crash risk.
+    Advanced context-aware AI Chatbot with real-time SQLite database grounding, 
+    student/admin personalization, tool queries, and multi-model LLM integration.
     """
     if not query or not query.strip():
         return "👋 How can I help you today? Ask about curfew timings, room allotments, mess menus, leave gate passes, or filing complaints."
 
     q_clean = query.strip().lower()
+    user_context = user_context or {}
+    user_role = user_context.get("user_role", "STUDENT")
+    logged_user = user_context.get("logged_user", "Resident")
+    student_profile = user_context.get("student_profile", {})
 
+    import database as db
+
+    # ==================================================================================
+    # 1. LIVE DATABASE GROUNDING: MESS & FOOD MENU INTENTS
+    # ==================================================================================
+    food_kws = ["mess", "food", "menu", "dinner", "lunch", "breakfast", "snacks", "meal", "meals", "eating", "eat", "curry", "dish", "diet"]
+    if any(re.search(rf"\b{k}\b", q_clean) for k in food_kws) and not any(r in q_clean for r in ["room", "block"]):
+        # Determine target day
+        days_map = {
+            "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday",
+            "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday", "sunday": "Sunday"
+        }
+        target_day = None
+        for d_key, d_val in days_map.items():
+            if d_key in q_clean:
+                target_day = d_val
+                break
+
+        if not target_day:
+            if "tomorrow" in q_clean:
+                target_day = (datetime.now() + timedelta(days=1)).strftime("%A")
+            elif "yesterday" in q_clean:
+                target_day = (datetime.now() - timedelta(days=1)).strftime("%A")
+            else:
+                target_day = datetime.now().strftime("%A")
+
+        # Query live database
+        menu_items = db.fetch_all("SELECT * FROM mess_menu WHERE day_of_week = ?", (target_day,))
+        if menu_items:
+            # Check if specific meal requested
+            specific_meal = None
+            if "breakfast" in q_clean:
+                specific_meal = "Breakfast"
+            elif "lunch" in q_clean:
+                specific_meal = "Lunch"
+            elif "snacks" in q_clean or "snack" in q_clean or "tea" in q_clean:
+                specific_meal = "Snacks"
+            elif "dinner" in q_clean:
+                specific_meal = "Dinner"
+
+            if specific_meal:
+                meal_data = next((m for m in menu_items if m["meal_type"] == specific_meal), None)
+                if meal_data:
+                    return (
+                        f"🍲 **{target_day} {specific_meal} Menu:**\n\n"
+                        f"• **Dishes:** {meal_data['items']}\n"
+                        f"• ✨ **Special Item:** {meal_data['special_item']}\n"
+                        f"• 🔥 **Nutritional Energy:** {meal_data['calories']} kcal\n\n"
+                        f"🕒 *Dining Hall is open for {specific_meal} as per standard mess schedule.*"
+                    )
+
+            # Full day menu
+            lines = [f"📅 **Dining Menu for {target_day}:**\n"]
+            icons = {"Breakfast": "🥞", "Lunch": "🍛", "Snacks": "☕", "Dinner": "🍲"}
+            for m in menu_items:
+                ic = icons.get(m["meal_type"], "🍽️")
+                lines.append(
+                    f"{ic} **{m['meal_type']}** ({m['calories']} kcal):\n"
+                    f"  {m['items']}\n"
+                    f"  *Special:* **{m['special_item']}**\n"
+                )
+            return "\n".join(lines)
+
+    # ==================================================================================
+    # 2. LIVE DATABASE GROUNDING: STUDENT ROOM & ROOMMATES INTENTS
+    # ==================================================================================
+    if any(k in q_clean for k in ["my room", "roommates", "roommate", "who is in my room", "my bed", "my block", "my floor", "room details"]) and user_role == "STUDENT":
+        if student_profile:
+            room_info = student_profile.get("room_details")
+            roommates = student_profile.get("roommates", [])
+            
+            if room_info:
+                rm_text = ""
+                if roommates:
+                    rm_list = [f"• 👤 **{rm['name']}** (Year {rm['year']} {rm['department']}) — 📞 {rm['phone']}" for rm in roommates]
+                    rm_text = "\n\n**Your Roommates:**\n" + "\n".join(rm_list)
+                else:
+                    rm_text = "\n\n*No roommates are currently assigned to your room.*"
+
+                return (
+                    f"🚪 **Your Room Details ({logged_user}):**\n\n"
+                    f"• **Room Number:** **{room_info['room_number']}**\n"
+                    f"• **Hostel / Block:** {room_info['hostel_name']} ({room_info['block_name']}, Floor {room_info['floor_number']})\n"
+                    f"• **Room Type:** {room_info['room_type']} ({room_info['occupied_beds']} / {room_info['capacity']} Beds Occupied)\n"
+                    f"• **Monthly Rent:** ₹{room_info['rent_per_month']:,.0f}\n"
+                    f"• **Amenities:** {room_info['amenities'] or 'Standard'}"
+                    f"{rm_text}"
+                )
+            else:
+                return f"ℹ️ **Hi {logged_user}**, you are currently not allocated to a room yet. The Hostel Warden will allocate your room shortly using the AI Compatibility Matcher."
+
+    # ==================================================================================
+    # 3. LIVE DATABASE GROUNDING: FEE DUES & ACCOUNT INTENTS
+    # ==================================================================================
+    if any(k in q_clean for k in ["my fee", "fee due", "fee status", "how much fee", "my dues", "payment receipt"]) and user_role == "STUDENT":
+        if student_profile:
+            fee_info = student_profile.get("fee_details")
+            if fee_info:
+                status_emoji = "✅" if fee_info['amount_due'] == 0 else "⚠️"
+                return (
+                    f"💳 **Your Hostel Fee Statement ({logged_user}):**\n\n"
+                    f"• **Account Status:** {status_emoji} **{fee_info['status']}**\n"
+                    f"• **Total Semester Fee:** ₹{fee_info['total_amount']:,.0f}\n"
+                    f"• **Amount Paid:** ₹{fee_info['amount_paid']:,.0f}\n"
+                    f"• **Outstanding Due:** **₹{fee_info['amount_due']:,.0f}**\n"
+                    f"• **Due Date:** {fee_info['due_date']}\n"
+                    f"• **Transaction Ref:** `{fee_info['transaction_ref'] or 'N/A'}`"
+                )
+
+    # ==================================================================================
+    # 4. LIVE DATABASE GROUNDING: GATE PASS & LEAVE STATUS INTENTS
+    # ==================================================================================
+    if any(k in q_clean for k in ["my gate pass", "my pass", "my leave", "leave status", "is my leave approved"]) and user_role == "STUDENT":
+        if student_profile:
+            leaves = student_profile.get("leaves", [])
+            if leaves:
+                latest = leaves[0]
+                badge = "🟢 APPROVED" if latest['status'] == "APPROVED" else ("🟡 PENDING WARDEN REVIEW" if latest['status'] == "PENDING" else "🔴 REJECTED")
+                pass_snippet = f"\n• 🎫 **Gate Pass Code:** `{latest['gate_pass_code']}` (Ready for QR Scan at gate)" if latest['gate_pass_code'] else ""
+                return (
+                    f"✈️ **Your Latest Leave Request:**\n\n"
+                    f"• **Status:** {badge}\n"
+                    f"• **Duration:** {latest['from_date']} to {latest['to_date']}\n"
+                    f"• **Destination / Reason:** {latest['reason']}"
+                    f"{pass_snippet}\n"
+                    f"• **Created On:** {latest['created_at']}"
+                )
+            else:
+                return f"ℹ️ **Hi {logged_user}**, you have not submitted any outstation leave requests yet. You can apply directly in the **Leave & Digital Gate Pass** tab."
+
+    # ==================================================================================
+    # 5. LIVE DATABASE GROUNDING: STUDENT COMPLAINTS INTENTS
+    # ==================================================================================
+    if any(k in q_clean for k in ["my complaints", "my grievance", "my tickets", "repair status"]) and user_role == "STUDENT":
+        if student_profile:
+            comps = student_profile.get("complaints", [])
+            if comps:
+                lines = [f"🛠️ **Your Maintenance Tickets ({len(comps)} total):**\n"]
+                for c in comps[:4]:
+                    st_icon = "✅" if c['status'] == "RESOLVED" else ("⚙️" if c['status'] == "IN_PROGRESS" else "🚨")
+                    lines.append(
+                        f"{st_icon} **Ticket #{c['id']} — {c['title']}**\n"
+                        f"  Status: `{c['status']}` • Priority: `{c['priority']}` • Dept: {c['department']}\n"
+                        f"  *AI Note:* {c['suggested_action']}\n"
+                    )
+                return "\n".join(lines)
+            else:
+                return f"ℹ️ **Hi {logged_user}**, you have no active maintenance complaints filed."
+
+    # ==================================================================================
+    # 6. ACTION INTENT: DIRECT COMPLAINT REPORTING VIA CHAT
+    # ==================================================================================
+    if q_clean.startswith("report issue:") or q_clean.startswith("file complaint:") or q_clean.startswith("report:") or q_clean.startswith("complaint:"):
+        complaint_text = re.sub(r'^(report issue:|file complaint:|report:|complaint:)\s*', '', query, flags=re.IGNORECASE).strip()
+        if complaint_text:
+            ai_res = analyze_complaint(complaint_text)
+            now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+            s_id = student_profile.get("id") if student_profile else None
+            r_no = student_profile.get("room_details", {}).get("room_number", "Corridor") if student_profile else "Main Block"
+
+            cid = db.execute_query("""
+            INSERT INTO complaints (student_id, student_name, room_number, category, title, description, priority, sentiment, status, department, suggested_action, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'OPEN', ?, ?, ?)
+            """, (s_id, logged_user, r_no, ai_res['category'], ai_res['summary'], complaint_text, ai_res['priority'], ai_res['sentiment'], ai_res['department'], ai_res['suggested_action'], now_str))
+
+            return (
+                f"🎉 **Maintenance Grievance Ticket #{cid} Created Successfully!**\n\n"
+                f"• 🏷️ **Category:** {ai_res['category']}\n"
+                f"• 🚨 **Urgency:** `{ai_res['priority']} Priority` (SLA: {ai_res['sla_hours']} Hours)\n"
+                f"• 🏢 **Assigned Department:** {ai_res['department']}\n"
+                f"• 🤖 **AI Action Recommendation:** {ai_res['suggested_action']}\n\n"
+                f"Our maintenance supervisor has been alerted."
+            )
+
+    # ==================================================================================
+    # 7. LIVE DATABASE GROUNDING: SPECIFIC ROOM LOOKUPS (e.g., "room A-101", "who is in room G-102")
+    # ==================================================================================
+    room_match = re.search(r'\b([a-z]\d?-\d{3}|room\s+([a-z]\d?-\d{3}|\d+))\b', q_clean, re.IGNORECASE)
+    if room_match:
+        matched_str = room_match.group(1).upper().replace("ROOM", "").strip()
+        matched_room = db.fetch_one("SELECT * FROM rooms WHERE UPPER(room_number) = ? OR UPPER(room_number) = ?", (matched_str, f"ROOM {matched_str}"))
+        if not matched_room:
+            matched_room = db.fetch_one("SELECT * FROM rooms WHERE UPPER(room_number) LIKE ?", (f"%{matched_str}%",))
+
+        if matched_room:
+            occupants = db.fetch_all("SELECT id, student_id_code, name, department, year, phone, email FROM students WHERE room_id = ?", (matched_room["id"],))
+            occ_list_str = ""
+            if occupants:
+                occ_list_str = "\n\n**Current Occupants:**\n" + "\n".join([f"• 👤 **{o['name']}** (`{o['student_id_code']}`, Year {o['year']} {o['department']}) — 📞 {o['phone']}" for o in occupants])
+            else:
+                occ_list_str = "\n\n*No students currently allocated to this room (Vacant).* "
+
+            return (
+                f"🏢 **Room {matched_room['room_number']} Details:**\n\n"
+                f"• **Hostel Complex:** {matched_room['hostel_name']} ({matched_room['block_name']}, Floor {matched_room['floor_number']})\n"
+                f"• **Type & Capacity:** {matched_room['room_type']} ({matched_room['occupied_beds']} / {matched_room['capacity']} Beds Occupied)\n"
+                f"• **Status:** `{matched_room['status']}`\n"
+                f"• **Monthly Rent:** ₹{matched_room['rent_per_month']:,.0f}\n"
+                f"• **Amenities:** {matched_room['amenities'] or 'Standard Furnishing'}"
+                f"{occ_list_str}"
+            )
+
+    # ==================================================================================
+    # 8. LIVE DATABASE GROUNDING: SPECIFIC STUDENT SEARCH (e.g., "STU-1041", "student Aarav")
+    # ==================================================================================
+    stu_code_match = re.search(r'\b(stu-?\d{4})\b', q_clean, re.IGNORECASE)
+    if stu_code_match or (any(k in q_clean for k in ["tell me about student", "who is student", "student profile", "student details"]) and not q_clean.startswith("my ")):
+        target_code = stu_code_match.group(1).upper() if stu_code_match else None
+        if target_code and "-" not in target_code:
+            target_code = f"STU-{target_code[3:]}"
+
+        stu_row = None
+        if target_code:
+            stu_row = db.fetch_one("SELECT * FROM students WHERE UPPER(student_id_code) = ?", (target_code,))
+        else:
+            # Try searching by name in query
+            all_stus = db.fetch_all("SELECT * FROM students")
+            for s in all_stus:
+                if s["name"].lower() in q_clean:
+                    stu_row = s
+                    break
+
+        if stu_row:
+            room_info = db.fetch_one("SELECT * FROM rooms WHERE id = ?", (stu_row["room_id"],)) if stu_row.get("room_id") else None
+            room_str = f"Room {room_info['room_number']} ({room_info['hostel_name']})" if room_info else "Pending Allocation"
+            fee_info = db.fetch_one("SELECT * FROM fee_records WHERE student_id = ? ORDER BY id DESC LIMIT 1", (stu_row["id"],))
+            fee_str = f"₹{fee_info['amount_due']:,.0f} Due ({fee_info['status']})" if fee_info else stu_row["fee_status"]
+
+            return (
+                f"🎓 **Student Profile: {stu_row['name']} ({stu_row['student_id_code']}):**\n\n"
+                f"• 📚 **Academic:** Year {stu_row['year']}, {stu_row['department']} ({stu_row['gender']})\n"
+                f"• 🚪 **Allocated Room:** **{room_str}**\n"
+                f"• 💳 **Fee Status:** `{fee_str}`\n"
+                f"• 🧠 **Lifestyle Profile:** {stu_row['sleep_habit']} | {stu_row['study_habit']} | {stu_row['cleanliness']} Cleanliness | {stu_row['dietary_pref']}\n"
+                f"• 📞 **Contact:** {stu_row['phone']} | ✉️ {stu_row['email']}\n"
+                f"• 👨‍👩‍👦 **Guardian:** {stu_row['parent_name']} ({stu_row['parent_phone']})"
+            )
+
+    # ==================================================================================
+    # 9. LIVE DATABASE GROUNDING: OVERDUE FEES / DEFAULTERS
+    # ==================================================================================
+    if any(k in q_clean for k in ["overdue fee", "defaulters", "unpaid fee", "fee due list", "who has not paid fee", "pending payments"]):
+        overdue_records = db.fetch_all("SELECT * FROM fee_records WHERE status IN ('OVERDUE', 'PARTIAL') ORDER BY amount_due DESC")
+        if overdue_records:
+            lines = [f"⚠️ **Found {len(overdue_records)} Residents with Outstanding Dues:**\n"]
+            for f_rec in overdue_records:
+                lines.append(
+                    f"• 👤 **{f_rec['student_name']}** — Outstanding: **₹{f_rec['amount_due']:,.0f}** / ₹{f_rec['total_amount']:,.0f} "
+                    f"(`{f_rec['status']}`, Due: {f_rec['due_date']})"
+                )
+            return "\n".join(lines)
+        else:
+            return "✅ **Great news!** All resident students have cleared their hostel fee obligations."
+
+    # ==================================================================================
+    # 10. LIVE DATABASE GROUNDING: NOTICES & CIRCULARS
+    # ==============================================================================
+    if any(k in q_clean for k in ["notice", "notices", "circular", "announcement", "news", "what is happening", "events"]):
+        notices = db.fetch_all("SELECT * FROM notices ORDER BY id DESC LIMIT 5")
+        if notices:
+            lines = ["📢 **Latest Official Campus Hostel Notices:**\n"]
+            for n in notices:
+                p_icon = "🚨" if n['priority'] == "URGENT" else ("⚠️" if n['priority'] == "HIGH" else "📌")
+                lines.append(
+                    f"{p_icon} **{n['title']}** ({n['category']})\n"
+                    f"  {n['content']}\n"
+                    f"  *Posted by: {n['posted_by']} on {n['posted_at']}*\n"
+                )
+            return "\n".join(lines)
+
+    # ==================================================================================
+    # 11. LIVE DATABASE GROUNDING: ADMIN / WARDEN CAMPUS STATS
+    # ==================================================================================
+    if any(k in q_clean for k in ["occupancy", "how many students", "campus stats", "vacant beds", "active complaints", "hostel stats", "overview of hostel"]):
+        students = db.fetch_all("SELECT id, room_id FROM students")
+        rooms = db.fetch_all("SELECT capacity, occupied_beds FROM rooms")
+        open_comps = db.fetch_all("SELECT priority FROM complaints WHERE status != 'RESOLVED'")
+        urgent_comps = [c for c in open_comps if c['priority'] in ['URGENT', 'HIGH']]
+        leaves = db.fetch_all("SELECT id FROM leave_requests WHERE status = 'APPROVED'")
+
+        tot_beds = sum(r['capacity'] for r in rooms)
+        occ_beds = sum(r['occupied_beds'] for r in rooms)
+        unalloc = sum(1 for s in students if not s['room_id'])
+        rate = (occ_beds / max(1, tot_beds)) * 100
+
+        return (
+            f"📊 **Hostel Real-Time Operational Statistics:**\n\n"
+            f"• 👨‍🎓 **Total Residents:** {len(students)} ({unalloc} pending room allocation)\n"
+            f"• 🛏️ **Bed Occupancy:** {occ_beds} / {tot_beds} ({rate:.1f}% capacity across {len(rooms)} rooms)\n"
+            f"• 🚨 **Open Grievances:** {len(open_comps)} ({len(urgent_comps)} High/Urgent Priority)\n"
+            f"• ✈️ **Students on Approved Leave:** {len(leaves)} residents\n\n"
+            f"🟢 *All 6 Hostel Blocks, automated turnstiles & AI allocation engines operating normally.*"
+        )
+
+    # ==================================================================================
+    # 12. EXTERNAL LLM PROVIDER CALL (IF CONFIGURED)
+    # ==================================================================================
     if not api_url:
         api_url = os.environ.get("AI_PROVIDER_URL", "")
     if not api_key:
         api_key = os.environ.get("AI_API_KEY", "")
     if not model_name:
-        model_name = os.environ.get("AI_MODEL", "gpt-4.1-mini")
+        model_name = os.environ.get("AI_MODEL", "gpt-4o-mini")
 
-    # If external AI API is configured
     if api_url and api_key and api_url.startswith("http"):
         try:
+            system_prompt = (
+                f"You are the Advanced AI Assistant for SmartHostel AI Platform. "
+                f"Current User: {logged_user} (Role: {user_role}). "
+                f"Always answer clearly, politely, and accurately using markdown formatting. "
+                f"Provide concise, actionable answers grounded in university hostel policies."
+            )
             payload = {
                 "model": model_name,
                 "messages": [
-                    {
-                        "role": "system", 
-                        "content": "You are the AI Assistant for the Smart University Hostel Management System. Answer questions politely, accurately, and clearly about hostel rules, room allocations, mess, leave gate passes, complaints, and campus amenities."
-                    },
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": query}
-                ]
+                ],
+                "temperature": 0.3
             }
             req = urllib.request.Request(
                 api_url,
@@ -402,24 +709,25 @@ def generate_chat_response(query: str, api_url: str = None, api_key: str = None,
                     "Authorization": f"Bearer {api_key}"
                 }
             )
-            with urllib.request.urlopen(req, timeout=4) as response:
+            with urllib.request.urlopen(req, timeout=5) as response:
                 res_data = json.loads(response.read().decode('utf-8'))
                 if "choices" in res_data and len(res_data["choices"]) > 0:
                     return res_data["choices"][0]["message"]["content"]
         except Exception:
-            pass # Gracefully fall back to built-in knowledge base
+            pass  # Fall back to local knowledge engine
 
-    # Local Knowledge Engine Matching with word boundaries and fuzzy hit counting
+    # ==================================================================================
+    # 9. LOCAL KNOWLEDGE BASE FUZZY MATCHING
+    # ==================================================================================
     best_match = None
     max_score = 0
-
     query_words = set(re.findall(r'\b\w+\b', q_clean))
 
     for item in HOSTEL_KNOWLEDGE_BASE:
         score = 0
         for kw in item["keywords"]:
             if kw in q_clean:
-                score += 3 # Exact phrase hit
+                score += 3
             else:
                 kw_words = set(re.findall(r'\b\w+\b', kw))
                 if kw_words.issubset(query_words):
@@ -432,15 +740,16 @@ def generate_chat_response(query: str, api_url: str = None, api_key: str = None,
     if best_match and max_score > 0:
         return best_match
 
-    # General intelligent fallback
+    # Intelligent contextual fallback
     return (
         f"🤖 **Hostel AI Assistant:**\n\n"
         f"I received your question: *\"{query}\"*\n\n"
-        f"Here are key quick links to assist you:\n"
-        f"- 🕒 **Hostel Rules & Curfew:** Main gate closes at **09:30 PM**.\n"
-        f"- ✈️ **Gate Pass:** Apply for outstation permissions in the **Leave & Digital Gate Pass** tab.\n"
-        f"- 🛠️ **Complaints:** Submit maintenance requests in the **AI Complaints & Triage** tab.\n"
-        f"- 🍲 **Mess Food:** Check today's 4 meals in the **Mess & AI Waste Analytics** tab.\n"
-        f"- 🏢 **Rooms:** View room vacancy & compatibility in **AI Smart Room Allocation**.\n\n"
-        f"📞 *For urgent support, call Campus Control Room: +91 98765 00100 or Warden Office: +91 98765 43210.*"
+        f"Here are helpful quick links & direct actions:\n"
+        f"- 🍲 **Dining:** Ask *'What is for lunch today?'* to view the live menu.\n"
+        f"- 🚪 **Room & Roommates:** Ask *'Who are my roommates?'* to view assigned peers.\n"
+        f"- 🛠️ **File Ticket:** Type *'Report: [issue description]'* to auto-create a maintenance ticket.\n"
+        f"- 🕒 **Hostel Rules:** Main gate closes strictly at **09:30 PM**.\n"
+        f"- ✈️ **Gate Pass:** Apply for outstation permissions in the **Leave & Gate Pass** tab.\n\n"
+        f"📞 *For urgent assistance, contact Campus Security: +91 98765 00100 or Warden Office: +91 98765 43210.*"
     )
+
