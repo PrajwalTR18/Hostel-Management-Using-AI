@@ -176,6 +176,138 @@ st.markdown("""
         padding: 14px 16px;
         margin-bottom: 14px;
     }
+
+    /* Voice Assistant Hologram & Studio Styling */
+    .voice-studio-container {
+        background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%);
+        border: 1px solid rgba(99, 102, 241, 0.35);
+        border-radius: 24px;
+        padding: 32px 24px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    .voice-studio-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .voice-orb-wrapper {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 20px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .voice-orb {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #6366f1 0%, #3b82f6 50%, #1e1b4b 100%);
+        box-shadow: 0 0 35px rgba(99, 102, 241, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.2rem;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+        z-index: 2;
+    }
+    .voice-orb:hover {
+        transform: scale(1.08);
+        box-shadow: 0 0 50px rgba(99, 102, 241, 0.9), inset 0 0 25px rgba(255, 255, 255, 0.6);
+    }
+    .voice-pulse-ring {
+        position: absolute;
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        border: 2px solid rgba(99, 102, 241, 0.4);
+        animation: orb-pulse 2.2s infinite ease-out;
+        z-index: 1;
+    }
+    .voice-pulse-ring-2 {
+        position: absolute;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        border: 1px dashed rgba(56, 189, 248, 0.3);
+        animation: orb-rotate 8s infinite linear;
+        z-index: 0;
+    }
+    @keyframes orb-pulse {
+        0% { transform: scale(0.7); opacity: 0.8; }
+        50% { opacity: 0.4; }
+        100% { transform: scale(1.3); opacity: 0; }
+    }
+    @keyframes orb-rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .sound-equalizer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 28px;
+        margin: 12px auto;
+    }
+    .sound-bar {
+        width: 4px;
+        height: 8px;
+        background: #38bdf8;
+        border-radius: 2px;
+        animation: sound-bounce 1.2s infinite ease-in-out;
+    }
+    .sound-bar:nth-child(2) { animation-delay: 0.2s; height: 16px; background: #6366f1; }
+    .sound-bar:nth-child(3) { animation-delay: 0.4s; height: 24px; background: #a855f7; }
+    .sound-bar:nth-child(4) { animation-delay: 0.6s; height: 18px; background: #38bdf8; }
+    .sound-bar:nth-child(5) { animation-delay: 0.8s; height: 10px; background: #6366f1; }
+    @keyframes sound-bounce {
+        0%, 100% { transform: scaleY(0.4); }
+        50% { transform: scaleY(1.4); }
+    }
+    .voice-intent-badge {
+        background: rgba(99, 102, 241, 0.2);
+        color: #a5b4fc;
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    .spoken-bubble {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 4px solid #38bdf8;
+        border-radius: 0 12px 12px 0;
+        padding: 14px 18px;
+        margin: 12px 0;
+        color: #e2e8f0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        text-align: left;
+    }
+    .sustainability-card {
+        background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid #10b981;
+        box-shadow: 0 10px 25px rgba(6, 78, 59, 0.2);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -196,6 +328,16 @@ if "chat_history" not in st.session_state:
     st.session_state["chat_history"] = [
         {"role": "assistant", "content": "👋 Hello! I am your **AI Hostel Assistant**. Ask me anything about room allotments, leave policies, mess menus, curfew hours, or maintenance status!"}
     ]
+if "voice_history" not in st.session_state:
+    st.session_state["voice_history"] = []
+if "voice_auto_speak" not in st.session_state:
+    st.session_state["voice_auto_speak"] = True
+if "voice_accent" not in st.session_state:
+    st.session_state["voice_accent"] = "en-IN"
+if "last_voice_result" not in st.session_state:
+    st.session_state["last_voice_result"] = None
+if "emergency_sos_alert" not in st.session_state:
+    st.session_state["emergency_sos_alert"] = False
 
 
 def logout_user():
@@ -205,6 +347,8 @@ def logout_user():
     st.session_state["logged_user"] = ""
     st.session_state["user_data"] = {}
     st.session_state["student_profile"] = {}
+    st.session_state["last_voice_result"] = None
+    st.session_state["emergency_sos_alert"] = False
     st.rerun()
 
 
@@ -582,6 +726,7 @@ with st.sidebar:
     if u_role in ["ADMIN", "WARDEN"]:
         menu_options = [
             "📊 Dashboard Overview",
+            "🎙️ Voice AI Command Center",
             "🏢 Hostel & Room Matrix",
             "🎯 AI Smart Room Allocation",
             "👨‍🎓 Student Directory",
@@ -597,6 +742,7 @@ with st.sidebar:
     elif u_role == "STUDENT":
         menu_options = [
             "🏠 My Student Dashboard",
+            "🎙️ Voice AI Command Center",
             "🚪 My Room & Roommates",
             "✈️ Apply Leave & Active Gate Pass",
             "🛠️ File & Track Complaints (AI Triage)",
@@ -608,13 +754,14 @@ with st.sidebar:
     elif u_role == "SECURITY":
         menu_options = [
             "🎫 Gate Pass QR Scanner & Verifier",
+            "🎙️ Voice AI Command Center",
             "📅 Curfew & Night Check-In Log",
             "🛡️ Visitor Entry & Check-Out Registry",
             "📢 Campus Emergency Broadcasts",
             "🤖 AI Hostel Assistant (Chatbot)"
         ]
     else:
-        menu_options = ["📊 Dashboard Overview", "🤖 AI Hostel Assistant (Chatbot)"]
+        menu_options = ["📊 Dashboard Overview", "🎙️ Voice AI Command Center", "🤖 AI Hostel Assistant (Chatbot)"]
 
     selected_menu = st.radio("Navigation", menu_options, label_visibility="collapsed")
 
@@ -784,6 +931,253 @@ if selected_menu == "📊 Dashboard Overview":
             </div>
             """, unsafe_allow_html=True)
 
+    # ADVANCED AI SECTION: CAMPUS ENERGY & SUSTAINABILITY PREDICTOR
+    st.markdown("---")
+    st.markdown("### 🌿 AI Smart Campus Energy & Sustainability Intelligence")
+    e_col1, e_col2 = st.columns([1, 1.4])
+    with e_col1:
+        st.markdown("""
+        <div class="sustainability-card">
+            <h4 style="margin:0 0 6px 0; color:#a7f3d0;">🌿 Autonomous Power & Carbon Optimizer</h4>
+            <p style="margin:0 0 12px 0; font-size:0.88rem; opacity:0.95;">
+                Simulates real-time HVAC loads, grid power consumption, and carbon emissions based on block occupancy and environmental factors.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        sim_temp = st.slider("Ambient Campus Temperature (°C)", min_value=16.0, max_value=42.0, value=29.0, step=0.5)
+        energy_forecast = ai.predict_campus_energy_demand(
+            total_students=len(students),
+            occupancy_pct=occupancy_rate,
+            avg_temp_c=sim_temp,
+            day_name=datetime.now().strftime("%A")
+        )
+        st.info(energy_forecast["recommendation"])
+
+    with e_col2:
+        ek1, ek2, ek3 = st.columns(3)
+        with ek1:
+            st.metric("Total Daily Load", f"{energy_forecast['daily_total_kwh']} kWh", f"Peak: {energy_forecast['peak_kw']} kW")
+        with ek2:
+            st.metric("AC & HVAC Share", f"{energy_forecast['ac_hvac_kwh']} kWh", f"{int((energy_forecast['ac_hvac_kwh']/energy_forecast['daily_total_kwh'])*100)}% load")
+        with ek3:
+            st.metric("Campus Green Score", f"{energy_forecast['green_score']}/100", f"Carbon: {energy_forecast['carbon_kg']} kg")
+
+        df_energy = pd.DataFrame(energy_forecast["hourly_curve"])
+        fig_energy = px.area(df_energy, x="hour", y="kwh", title="24-Hour Projected Electricity Demand Curve (kWh)", color_discrete_sequence=["#10b981"])
+        fig_energy.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=220)
+        st.plotly_chart(fig_energy, use_container_width=True)
+
+
+# ======================================================================================
+# VOICE AI COMMAND CENTER (FULL SUITE FOR ADMIN, WARDEN, STUDENT & SECURITY)
+# ======================================================================================
+elif selected_menu == "🎙️ Voice AI Command Center":
+    st.markdown("""
+    <div class="voice-studio-container">
+        <div class="voice-pulse-ring-2"></div>
+        <div class="voice-pulse-ring"></div>
+        <div class="voice-orb-wrapper">
+            <div class="voice-orb">
+                🎙️
+            </div>
+        </div>
+        <h2 style="margin: 0 0 6px 0; font-size: 2rem; font-weight: 800; color: white; letter-spacing: -0.5px;">
+            SmartHostel Advanced Voice AI Assistant
+        </h2>
+        <p style="margin: 0 auto; max-width: 650px; font-size: 0.95rem; opacity: 0.88; line-height: 1.5;">
+            Zero-latency, dual-mode speech engine: Speak directly through your microphone, test high-speed voice command buttons, or trigger instant voice emergency SOS broadcasts.
+        </p>
+        <div class="sound-equalizer">
+            <div class="sound-bar"></div>
+            <div class="sound-bar"></div>
+            <div class="sound-bar"></div>
+            <div class="sound-bar"></div>
+            <div class="sound-bar"></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Voice Engine Settings Bar
+    v_set1, v_set2, v_set3 = st.columns([1, 1, 1.2])
+    with v_set1:
+        st.session_state["voice_auto_speak"] = st.toggle("🔊 Auto-Play Spoken Response", value=st.session_state.get("voice_auto_speak", True))
+    with v_set2:
+        voice_lang = st.selectbox("🌐 Accent & Language", ["English (India) - en-IN", "English (US) - en-US", "English (UK) - en-GB"])
+        lang_code = "en"
+        tld_val = "co.in" if "India" in voice_lang else ("co.uk" if "UK" in voice_lang else "com")
+    with v_set3:
+        if st.button("🧹 Clear Voice Interaction Logs", use_container_width=True):
+            st.session_state["voice_history"] = []
+            st.session_state["last_voice_result"] = None
+            st.rerun()
+
+    st.markdown("---")
+
+    voice_col_left, voice_col_right = st.columns([1.1, 1])
+
+    with voice_col_left:
+        st.subheader("🎙️ Mode 1: Live Voice Input")
+        st.caption("Record your spoken request using your browser's microphone or enter a voice prompt.")
+
+        # Streamlit Native Audio Input
+        recorded_audio = st.audio_input("🔴 Press to Speak & Record Audio")
+        
+        recognized_voice_text = ""
+        if recorded_audio is not None:
+            audio_bytes = recorded_audio.read()
+            if audio_bytes:
+                with st.spinner("🎧 Transcribing your voice input with SpeechRecognition engine..."):
+                    recognized_voice_text = ai.transcribe_audio_bytes(audio_bytes)
+                if recognized_voice_text:
+                    st.success(f"🗣️ Transcribed Voice: *\"{recognized_voice_text}\"*")
+                else:
+                    st.info("🎙️ Audio captured. If cloud STT is unavailable on local network, you can also use one-click voice command buttons below or enter spoken text:")
+
+        # Fallback / Direct Spoken Prompt Input
+        spoken_input = st.text_input(
+            "Or Type a Spoken Command to Process with Voice AI:", 
+            value=recognized_voice_text,
+            placeholder="e.g. 'What is for dinner tonight?', 'Report issue: tap leaking in washroom', 'Emergency SOS'"
+        )
+
+        exec_c1, exec_c2 = st.columns([1, 1])
+        with exec_c1:
+            run_voice_btn = st.button("⚡ Execute Voice Intent", type="primary", use_container_width=True)
+        with exec_c2:
+            sos_voice_btn = st.button("🚨 TRIGGER VOICE SOS", type="secondary", use_container_width=True)
+
+        user_ctx = {
+            "user_role": st.session_state.get("user_role", "STUDENT"),
+            "logged_user": st.session_state.get("logged_user", "Resident"),
+            "student_profile": st.session_state.get("student_profile", {})
+        }
+
+        # Process input
+        cmd_to_process = None
+        if run_voice_btn and spoken_input.strip():
+            cmd_to_process = spoken_input.strip()
+        elif sos_voice_btn:
+            cmd_to_process = "EMERGENCY SOS: Immediate security and medical dispatch required"
+
+        if cmd_to_process:
+            with st.spinner("🤖 Voice AI is parsing intent, executing database actions, and synthesizing speech..."):
+                v_res = ai.parse_voice_command(cmd_to_process, user_context=user_ctx)
+                st.session_state["last_voice_result"] = v_res
+                st.session_state["voice_history"].insert(0, {
+                    "query": cmd_to_process,
+                    "result": v_res,
+                    "timestamp": datetime.now().strftime("%I:%M:%S %p")
+                })
+            st.rerun()
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.subheader("⚡ Mode 2: Quick Spoken Scenarios (One-Click)")
+        st.caption("Experience instantaneous voice response synthesis across everyday hostel routines:")
+
+        qc1, qc2 = st.columns(2)
+        with qc1:
+            if st.button("🍲 'What's for dinner tonight?'", use_container_width=True):
+                v_res = ai.parse_voice_command("What is for dinner tonight?", user_context=user_ctx)
+                st.session_state["last_voice_result"] = v_res
+                st.session_state["voice_history"].insert(0, {"query": "What is for dinner tonight?", "result": v_res, "timestamp": datetime.now().strftime("%I:%M:%S %p")})
+                st.rerun()
+
+            if st.button("🚪 'Who are my roommates?'", use_container_width=True):
+                v_res = ai.parse_voice_command("Who are my roommates?", user_context=user_ctx)
+                st.session_state["last_voice_result"] = v_res
+                st.session_state["voice_history"].insert(0, {"query": "Who are my roommates?", "result": v_res, "timestamp": datetime.now().strftime("%I:%M:%S %p")})
+                st.rerun()
+
+            if st.button("🛠️ 'Report broken fan in room'", use_container_width=True):
+                v_res = ai.parse_voice_command("Report issue: Ceiling fan is vibrating and making loud noise in room", user_context=user_ctx)
+                st.session_state["last_voice_result"] = v_res
+                st.session_state["voice_history"].insert(0, {"query": "Report issue: Ceiling fan broken", "result": v_res, "timestamp": datetime.now().strftime("%I:%M:%S %p")})
+                st.rerun()
+
+        with qc2:
+            if st.button("🕒 'What are curfew timings?'", use_container_width=True):
+                v_res = ai.parse_voice_command("What are the night curfew timings and gate close hours?", user_context=user_ctx)
+                st.session_state["last_voice_result"] = v_res
+                st.session_state["voice_history"].insert(0, {"query": "Curfew timings", "result": v_res, "timestamp": datetime.now().strftime("%I:%M:%S %p")})
+                st.rerun()
+
+            if st.button("💳 'Check my fee balance'", use_container_width=True):
+                v_res = ai.parse_voice_command("Check my hostel fee balance and due amount", user_context=user_ctx)
+                st.session_state["last_voice_result"] = v_res
+                st.session_state["voice_history"].insert(0, {"query": "Check fee balance", "result": v_res, "timestamp": datetime.now().strftime("%I:%M:%S %p")})
+                st.rerun()
+
+            if st.button("📊 'Hostel operational stats'", use_container_width=True):
+                v_res = ai.parse_voice_command("Give me the current hostel stats and occupancy", user_context=user_ctx)
+                st.session_state["last_voice_result"] = v_res
+                st.session_state["voice_history"].insert(0, {"query": "Operational stats", "result": v_res, "timestamp": datetime.now().strftime("%I:%M:%S %p")})
+                st.rerun()
+
+    with voice_col_right:
+        st.subheader("🔊 Live Voice Response & Audio Player")
+        
+        last_res = st.session_state.get("last_voice_result")
+        if last_res:
+            intent_label = last_res.get("intent", "GENERAL")
+            st.markdown(f"""
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div>
+                        <span class="voice-intent-badge">🎯 Intent: {intent_label}</span>
+                        {'<span class="badge-urgent">⚡ Action Executed</span>' if last_res.get('action_taken') else '<span class="badge-info">ℹ️ Info Query</span>'}
+                    </div>
+                    <span style="font-size: 0.8rem; color: #64748b;">Grounded Live DB</span>
+                </div>
+                <div class="spoken-bubble">
+                    <strong>🗣️ Spoken Voice Output:</strong><br>
+                    "{last_res.get('spoken_text', '')}"
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Audio Player with Autoplay capability
+            audio_b64 = last_res.get("audio_base64", "")
+            if audio_b64:
+                autoplay_attr = "autoplay" if st.session_state.get("voice_auto_speak", True) else ""
+                audio_html = f"""
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; margin-bottom: 16px; text-align: center;">
+                    <span style="font-size: 0.85rem; color: #475569; font-weight: 600; display: block; margin-bottom: 8px;">
+                        🎧 High-Fidelity Voice Synthesis (gTTS Engine)
+                    </span>
+                    <audio controls {autoplay_attr} style="width: 100%;">
+                        <source src="{audio_b64}" type="audio/mp3">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+                """
+                st.markdown(audio_html, unsafe_allow_html=True)
+            else:
+                st.info("Audio synthesis stream standby.")
+
+            # Formatted Action/Markdown Card
+            st.markdown(last_res.get("markdown_display", ""), unsafe_allow_html=True)
+
+        else:
+            st.markdown("""
+            <div style="background: white; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 36px 20px; text-align: center; color: #64748b;">
+                <div style="font-size: 2.8rem; margin-bottom: 12px;">🎙️</div>
+                <h4 style="margin: 0 0 6px 0; color: #334155;">Voice Assistant Standby</h4>
+                <p style="margin: 0; font-size: 0.88rem;">
+                    Speak into the microphone or click any quick command on the left to hear real-time AI speech synthesis.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # Voice Command History Timeline
+    if st.session_state.get("voice_history"):
+        st.markdown("---")
+        st.subheader("📜 Voice Command Session History")
+        for h in st.session_state["voice_history"][:5]:
+            with st.expander(f"🕒 {h['timestamp']} — \"{h['query']}\" ({h['result']['intent']})"):
+                st.markdown(f"**🗣️ Spoken Output:** {h['result']['spoken_text']}")
+                st.markdown(h['result']['markdown_display'], unsafe_allow_html=True)
+
+
 
 # ======================================================================================
 # 2. ADMIN / WARDEN: HOSTEL & ROOM MATRIX
@@ -910,12 +1304,25 @@ elif selected_menu == "🎯 AI Smart Room Allocation":
 
     alloc_c1, alloc_c2 = st.columns([1, 1.4])
 
+    # Pre-calculate recommendations for both radar visualization and ranked listing
+    student_choices = {f"{s['name']} ({s['student_id_code']} - Yr {s['year']} {s['department']})": s['id'] for s in all_students}
     with alloc_c1:
         st.subheader("1. Select Candidate Student")
-        student_choices = {f"{s['name']} ({s['student_id_code']} - Yr {s['year']} {s['department']})": s['id'] for s in all_students}
         sel_student_label = st.selectbox("Choose Student", list(student_choices.keys()))
         selected_stu_id = student_choices[sel_student_label]
         student_obj = db.fetch_one("SELECT * FROM students WHERE id = ?", (selected_stu_id,))
+
+        recommendations = []
+        for r in available_rooms:
+            roommates = db.fetch_all("SELECT * FROM students WHERE room_id = ?", (r["id"],))
+            comp = ai.calculate_room_compatibility(student_obj, r, roommates)
+            if comp["score"] > 0:
+                recommendations.append({
+                    "room": r,
+                    "comp": comp,
+                    "roommates": roommates
+                })
+        recommendations.sort(key=lambda x: x["comp"]["score"], reverse=True)
 
         st.markdown(f"""
         <div style="background: white; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; margin-top: 10px;">
@@ -932,20 +1339,42 @@ elif selected_menu == "🎯 AI Smart Room Allocation":
         </div>
         """, unsafe_allow_html=True)
 
+        # Plotly Lifestyle Radar Chart
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("#### 🧭 Lifestyle Vector Compatibility Radar")
+        target_peer = recommendations[0]["roommates"][0] if (recommendations and recommendations[0]["roommates"]) else None
+        radar_info = ai.calculate_roommate_radar_profile(student_obj, target_peer)
+
+        radar_categories = radar_info["categories"] + [radar_info["categories"][0]]
+        s1_vals = radar_info["student1_values"] + [radar_info["student1_values"][0]]
+        s2_vals = radar_info["student2_values"] + [radar_info["student2_values"][0]]
+
+        fig_radar = go.Figure()
+        fig_radar.add_trace(go.Scatterpolar(
+            r=s1_vals,
+            theta=radar_categories,
+            fill='toself',
+            name=radar_info["student1_name"],
+            line_color='#2563eb'
+        ))
+        fig_radar.add_trace(go.Scatterpolar(
+            r=s2_vals,
+            theta=radar_categories,
+            fill='toself',
+            name=radar_info["student2_name"],
+            line_color='#10b981'
+        ))
+        fig_radar.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+            showlegend=True,
+            height=280,
+            margin=dict(l=20, r=20, t=20, b=20)
+        )
+        st.plotly_chart(fig_radar, use_container_width=True)
+        st.caption(f"🧠 Multi-Factor Lifestyle Synergy Score: **{radar_info['synergy_score']}%** alignment.")
+
     with alloc_c2:
         st.subheader("2. AI Compatibility Rankings & Recommendations")
-        recommendations = []
-        for r in available_rooms:
-            roommates = db.fetch_all("SELECT * FROM students WHERE room_id = ?", (r["id"],))
-            comp = ai.calculate_room_compatibility(student_obj, r, roommates)
-            if comp["score"] > 0:
-                recommendations.append({
-                    "room": r,
-                    "comp": comp,
-                    "roommates": roommates
-                })
-
-        recommendations.sort(key=lambda x: x["comp"]["score"], reverse=True)
 
         if recommendations:
             for idx, rec in enumerate(recommendations[:5]):
@@ -1215,6 +1644,41 @@ elif selected_menu == "📅 Smart Attendance & Curfew":
         st.warning(f"🚨 {a_count} student(s) marked ABSENT past curfew cutoff.")
         if st.button("📲 Send Automated SMS Notification to Absentee Guardians"):
             st.success("✅ SMS Alerts dispatched to guardians: 'Your ward was not present during mandatory 09:30 PM hostel curfew check.'")
+
+    # ADVANCED BIOMETRIC ANOMALY DETECTOR
+    st.markdown("---")
+    st.markdown("### 🤖 Biometric Anomaly & Repeat Curfew Risk Forecaster")
+    leaves_all = db.fetch_all("SELECT * FROM leave_requests")
+    anomaly_insights = ai.analyze_biometric_anomalies(records, leaves_all)
+
+    ano_c1, ano_c2 = st.columns([1, 1.2])
+    with ano_c1:
+        st.markdown(f"""
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 style="margin:0; color:#1e293b;">Campus Curfew Threat Status</h4>
+                <span class="{'badge-urgent' if anomaly_insights['campus_security_risk'] == 'ELEVATED' else 'badge-success'}">
+                    {anomaly_insights['campus_security_risk']} RISK
+                </span>
+            </div>
+            <p style="margin: 8px 0 12px 0; font-size: 0.88rem; color: #64748b;">
+                AI pattern analysis cross-references biometric turnstile timestamps against authorized outstation leave databases.
+            </p>
+            <ul style="margin:0; padding-left:18px; font-size:0.85rem; color:#334155;">
+                <li>Total Curfew Anomalies Detected: <b>{anomaly_insights['total_anomalies']}</b></li>
+                <li>Late Returns Past 09:30 PM: <b>{anomaly_insights['late_entries_count']}</b></li>
+                <li>Unaccounted Missing Absences: <b>{len(anomaly_insights['unaccounted_absences'])}</b></li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with ano_c2:
+        if anomaly_insights['chronic_late_students']:
+            st.markdown("##### ⚠️ Chronic Late Arrivals (>= 2 Incidents)")
+            for cl in anomaly_insights['chronic_late_students']:
+                st.markdown(f"- 👤 **{cl['student']}** — logged `{cl['count']}` late check-ins this week.")
+        else:
+            st.success("✨ Zero chronic late arrivals detected. Turnstile discipline adherence is optimal.")
 
 
 # ======================================================================================
@@ -1590,6 +2054,68 @@ elif selected_menu == "🏠 My Student Dashboard":
             <span style="font-size:0.8rem; color:#64748b;">Maintenance tickets</span>
         </div>
         """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # 🎙️ ADVANCED VOICE AI ASSISTANT & EMERGENCY SOS BANNER FOR STUDENT
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 16px; padding: 18px 24px; color: white; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+                <div style="width:48px; height:48px; border-radius:50%; background:#6366f1; display:flex; align-items:center; justify-content:center; font-size:1.5rem; box-shadow:0 0 20px rgba(99,102,241,0.6);">
+                    🎙️
+                </div>
+                <div>
+                    <h4 style="margin:0; color:#e0e7ff; font-size:1.15rem;">SmartHostel Voice Assistant Active</h4>
+                    <p style="margin:2px 0 0 0; font-size:0.85rem; color:#a5b4fc;">
+                        Hands-free voice queries, instant meal menus, maintenance dispatch, and emergency SOS alerts.
+                    </p>
+                </div>
+            </div>
+            <div>
+                <span class="badge-success" style="font-size:0.8rem;">● AI Voice Engine Online</span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Quick Voice Trigger Buttons for Student
+    v_st_c1, v_st_c2, v_st_c3, v_st_c4, v_st_c5 = st.columns(5)
+    stu_ctx = {
+        "user_role": "STUDENT",
+        "logged_user": sp.get("name", st.session_state["logged_user"]),
+        "student_profile": sp
+    }
+
+    with v_st_c1:
+        if st.button("🍲 Dinner Menu", use_container_width=True, key="stu_v_dinner"):
+            v_res = ai.parse_voice_command("What is for dinner tonight?", user_context=stu_ctx)
+            st.session_state["last_voice_result"] = v_res
+            st.info(f"🗣️ AI: \"{v_res['spoken_text']}\"")
+    with v_st_c2:
+        if st.button("🚪 My Roommates", use_container_width=True, key="stu_v_rm"):
+            v_res = ai.parse_voice_command("Who are my roommates?", user_context=stu_ctx)
+            st.session_state["last_voice_result"] = v_res
+            st.info(f"🗣️ AI: \"{v_res['spoken_text']}\"")
+    with v_st_c3:
+        if st.button("🕒 Curfew Rule", use_container_width=True, key="stu_v_curfew"):
+            v_res = ai.parse_voice_command("When does the gate close?", user_context=stu_ctx)
+            st.session_state["last_voice_result"] = v_res
+            st.info(f"🗣️ AI: \"{v_res['spoken_text']}\"")
+    with v_st_c4:
+        if st.button("💳 Fee Balance", use_container_width=True, key="stu_v_fee"):
+            v_res = ai.parse_voice_command("Check my fee balance", user_context=stu_ctx)
+            st.session_state["last_voice_result"] = v_res
+            st.info(f"🗣️ AI: \"{v_res['spoken_text']}\"")
+    with v_st_c5:
+        if st.button("🚨 VOICE SOS PANIC", type="primary", use_container_width=True, key="stu_v_sos"):
+            v_res = ai.parse_voice_command("EMERGENCY SOS: Immediate help needed!", user_context=stu_ctx)
+            st.session_state["last_voice_result"] = v_res
+            st.session_state["emergency_sos_alert"] = True
+            st.rerun()
+
+    if st.session_state.get("emergency_sos_alert"):
+        st.error("🚨 **EMERGENCY SOS DISPATCH TRIGGERED!** Chief Warden (+91 98765 43210) & Security Gate (+91 98765 00100) have received your alert with your room coordinates.")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -2146,13 +2672,27 @@ elif selected_menu == "🤖 AI Hostel Assistant (Chatbot)":
             api_key=custom_api_key,
             model_name=custom_model
         )
-        st.session_state["chat_history"].append({"role": "assistant", "content": ai_reply})
+        audio_url = ai.generate_tts_base64_audio_url(ai.clean_text_for_speech(ai_reply))
+        st.session_state["chat_history"].append({"role": "assistant", "content": ai_reply, "audio_url": audio_url})
         st.rerun()
 
+    # Voice Mode Switcher & Controls inside Chatbot
+    c_voice_c1, c_voice_c2 = st.columns([1.5, 1])
+    with c_voice_c1:
+        enable_chat_voice = st.toggle("🔊 Spoken Voice Responses (TTS Audio)", value=True, help="Automatically synthesize voice audio for AI responses.")
+    with c_voice_c2:
+        st.caption("🎙️ *For hands-free speech recognition and SOS alerts, visit the **Voice AI Command Center** tab.*")
+
     # Display Chat Timeline
-    for msg in st.session_state["chat_history"]:
+    for idx, msg in enumerate(st.session_state["chat_history"]):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
+            if msg["role"] == "assistant" and msg.get("audio_url"):
+                st.markdown(f"""
+                <audio controls style="height: 32px; width: 220px; margin-top: 6px;">
+                    <source src="{msg['audio_url']}" type="audio/mp3">
+                </audio>
+                """, unsafe_allow_html=True)
 
     # Natural Language Chat Input
     if prompt := st.chat_input("Ask a question (e.g. 'What is today's dinner?', 'Who is my roommate?', 'Report issue: Tap leaking in bathroom')..."):
@@ -2175,7 +2715,23 @@ elif selected_menu == "🤖 AI Hostel Assistant (Chatbot)":
                 model_name=custom_model
             )
         
-        st.session_state["chat_history"].append({"role": "assistant", "content": ai_reply})
+        audio_url = ""
+        if enable_chat_voice:
+            clean_speech = ai.clean_text_for_speech(ai_reply)
+            audio_url = ai.generate_tts_base64_audio_url(clean_speech)
+
+        st.session_state["chat_history"].append({
+            "role": "assistant", 
+            "content": ai_reply,
+            "audio_url": audio_url
+        })
         with st.chat_message("assistant"):
             st.markdown(ai_reply)
+            if audio_url:
+                st.markdown(f"""
+                <audio controls autoplay style="height: 32px; width: 220px; margin-top: 6px;">
+                    <source src="{audio_url}" type="audio/mp3">
+                </audio>
+                """, unsafe_allow_html=True)
+
 

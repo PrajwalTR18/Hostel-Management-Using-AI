@@ -6,7 +6,7 @@
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An enterprise-grade, real-world **AI-Powered University Hostel Management Platform** built with **Python**, **Streamlit**, and an **Autonomous Domain RAG AI Engine**. It provides role-based portals for Chief Administrators, Hostel Wardens, Security Officers, and Resident Students with biometric turnstile tracking, AI room-matching, automated NLP ticket triage, fee risk scoring, and a 24x7 database-grounded conversational AI assistant.
+An enterprise-grade, real-world **AI-Powered University Hostel Management Platform** built with **Python**, **Streamlit**, an **Autonomous Domain RAG AI Engine**, and a state-of-the-art **Voice AI Command Center**. It provides role-based portals for Chief Administrators, Hostel Wardens, Security Officers, and Resident Students with real-time biometric turnstile tracking, AI room-matching with 6D radar profiling, automated NLP ticket triage, predictive dining and energy sustainability forecasting, biometric curfew anomaly detection, voice-activated emergency SOS protocols, and a 24x7 database-grounded conversational voice & text AI assistant.
 
 ---
 
@@ -15,45 +15,56 @@ An enterprise-grade, real-world **AI-Powered University Hostel Management Platfo
 ```mermaid
 graph TD
     A[SmartHostel AI Platform] --> B[Multi-Role Auth Portal]
-    A --> C[AI Intelligence Suite]
+    A --> C[AI Intelligence & Predictive Suite]
     A --> D[Operations & Services]
-    A --> E[24x7 Grounded AI Chatbot]
+    A --> E[Voice & Conversational AI Hub]
 
     B --> B1[Chief Admin Dashboard]
     B --> B2[Warden Oversight Portal]
     B --> B3[Security Turnstile Post]
     B --> B4[Personalized Student Hub]
 
-    C --> C1[Roommate Vector Compatibility Matcher]
+    C --> C1[6D Roommate Radar Compatibility Matcher]
     C --> C2[NLP Maintenance Ticket Triage & SLA Router]
-    C --> C3[Biometric Attendance Anomaly Detector]
+    C --> C3[Biometric Turnstile Anomaly & Curfew Detector]
     C --> C4[Fee Default Risk & Overdue Forecaster]
     C --> C5[Mess Food Demand & Waste Optimizer]
+    C --> C6[Campus Power & Carbon Sustainability Predictor]
 
     D --> D1[Digital Gate Passes & QR Scans]
     D --> D2[7-Day Dynamic Mess Menus & Nutrition]
     D --> D3[Visitor Security Checkpoint]
     D --> D4[Official Campus Circulars & Alerts]
 
-    E --> E1[Live SQLite Database Grounding]
-    E --> E2[Autonomous Domain RAG Engine]
-    E --> E3[Multi-LLM Integration OpenAI/Gemini]
+    E --> E1[🎙️ Voice AI Command Center: Mic STT & gTTS Audio]
+    E --> E2[🚨 Voice-Activated Emergency SOS Protocol]
+    E --> E3[Live SQLite Database Grounding]
+    E --> E4[Multi-LLM Integration OpenAI/Gemini]
 ```
 
-### 1. 🏢 Multi-Hostel Complex Infrastructure
+### 1. 🎙️ Advanced Voice AI Command Center
+- **Dual-Mode Speech Engine:** Record live voice queries directly via the browser microphone (`st.audio_input` + `SpeechRecognition`) or trigger one-click spoken scenarios with animated equalizer visual feedback.
+- **High-Fidelity Audio Synthesis:** In-memory Google TTS (`gTTS`) generates natural base64 audio streams for seamless HTML5 in-app playback with zero disk pollution.
+- **Voice-Activated Action Dispatcher:** Spoken commands like *"Report issue: water leaking from tap in washroom"* instantly create triaged maintenance tickets with SLAs, department routing, and audible confirmation.
+- **🚨 Voice Emergency SOS:** Hands-free panic command dispatches high-urgency alerts with resident room coordinates to the Chief Warden and Main Security gate desk.
+
+### 2. 🏢 Multi-Hostel Complex Infrastructure
 - **6 Campus Blocks:** Aryabhata (Boys), Gargi Bhavan (Girls), CV Raman (PG Research), Sarojini Naidu (Girls PG), Kalam Innovation (Tech Hub), and Tagore Residence (Executive Co-ed).
 - **52 Real-World Rooms:** Single, Double, Triple, and Quad units across Floors 1–5 with pricing, occupancy tracking, and amenity tags.
 
-### 2. 🧠 Smart AI Engine & Analytics
-- **Roommate Compatibility Scoring:** Multi-attribute cosine similarity based on sleep habits (Night Owl / Early Bird), study culture (Intensive / Group), cleanliness tolerances, and dietary preferences.
-- **NLP Complaint Classification:** Automatic categorization into Plumbing, Electrical, Wi-Fi, Food, Cleanliness, or Security with sentiment polarity, priority rating, SLA calculation, and technician assignment.
+### 3. 🧠 Smart AI Intelligence & Analytics
+- **6D Roommate Vector Compatibility Radar:** Multi-attribute polar radar profiling (Sleep chronotype, Study focus, Cleanliness, Social tolerance, Noise sensitivity, and Routine rhythm) with explainable synergy breakdown.
+- **Campus Power & Sustainability Forecaster:** Real-time simulation of HVAC and electrical load (kWh), peak power spikes, and carbon emissions (kg CO2) based on temperature and active resident counts.
+- **Biometric Turnstile Curfew Anomaly Detector:** Automated pattern identification for repeat curfew violations, chronic late entries, and unauthorized absentees.
+- **NLP Complaint Classification & Triage:** Automatic categorization into Plumbing, Electrical, Wi-Fi, Food, Cleanliness, Carpentry, or Security with sentiment polarity, priority rating, and automated technician assignment.
 - **Predictive Food Waste Analytics:** Daily meal headcount forecasting to reduce kitchen waste by ~30%.
-- **Fee Overdue Risk Scoring:** Identifies overdue and partial balances with automated financial summaries.
+- **Fee Overdue Risk Scoring:** Identifies overdue and partial balances with automated financial risk scoring and SMS alerts.
 
-### 3. 🤖 24x7 Grounded AI Assistant (Chatbot)
+### 4. 🤖 24x7 Grounded AI Assistant (Chatbot & Voice)
 - Answers queries in natural language grounded directly in live database tables (rooms, roommates, meal menus, fee balances, gate passes).
-- **Direct Action Execution:** Students can type `Report issue: Air conditioner leaking water in room A-102` to automatically create triaged maintenance tickets.
-- Zero external API dependencies (runs locally on autonomous RAG engine with zero latency) or optionally connects to OpenAI/Gemini.
+- **Direct Action Execution:** Students can type or speak `Report issue: Air conditioner leaking water in room A-102` to automatically create triaged maintenance tickets.
+- Optional voice playback toggle for spoken audio responses.
+- Runs locally on the zero-latency autonomous RAG engine or connects to OpenAI/Gemini.
 
 ---
 
