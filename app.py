@@ -26,287 +26,221 @@ st.set_page_config(
 # Initialize database
 db.init_database()
 
-# Custom Modern Glassmorphism & Dashboard CSS
+# Custom Modern Minimalist & Clean Dashboard CSS
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #0f172a;
     }
 
     h1, h2, h3, h4 {
-        font-family: 'Outfit', 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #0f172a;
+        font-weight: 700;
     }
 
     .main-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
-        padding: 24px 30px;
-        border-radius: 18px;
-        color: white;
-        margin-bottom: 24px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #2563eb;
+        padding: 18px 24px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
     .auth-hero-banner {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
-        border-radius: 20px;
-        padding: 30px;
-        color: white;
-        margin-bottom: 24px;
-        box-shadow: 0 12px 35px rgba(15, 23, 42, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 24px 28px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     }
 
     .auth-card {
-        background: white;
-        border-radius: 18px;
-        padding: 26px;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
     .feature-pill-card {
-        background: white;
-        border-radius: 14px;
-        padding: 18px;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 16px 18px;
         border: 1px solid #e2e8f0;
-        margin-bottom: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        transition: transform 0.2s, box-shadow 0.2s;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        transition: border-color 0.15s, box-shadow 0.15s;
     }
     .feature-pill-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
     .metric-card {
-        background: white;
-        padding: 20px;
-        border-radius: 14px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        background: #ffffff;
+        padding: 18px 20px;
+        border-radius: 12px;
         border: 1px solid #e2e8f0;
-        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        transition: border-color 0.15s, box-shadow 0.15s;
     }
     .metric-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.09);
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
     .badge-urgent {
-        background-color: #fee2e2;
+        background-color: #fef2f2;
         color: #991b1b;
-        padding: 4px 10px;
-        border-radius: 20px;
+        border: 1px solid #fecaca;
+        padding: 3px 10px;
+        border-radius: 9999px;
         font-weight: 600;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         display: inline-block;
     }
     .badge-high {
-        background-color: #ffedd5;
+        background-color: #fff7ed;
         color: #9a3412;
-        padding: 4px 10px;
-        border-radius: 20px;
+        border: 1px solid #fed7aa;
+        padding: 3px 10px;
+        border-radius: 9999px;
         font-weight: 600;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         display: inline-block;
     }
     .badge-success {
-        background-color: #dcfce7;
+        background-color: #f0fdf4;
         color: #166534;
-        padding: 4px 10px;
-        border-radius: 20px;
+        border: 1px solid #bbf7d0;
+        padding: 3px 10px;
+        border-radius: 9999px;
         font-weight: 600;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         display: inline-block;
     }
     .badge-info {
-        background-color: #e0f2fe;
-        color: #075985;
-        padding: 4px 10px;
-        border-radius: 20px;
+        background-color: #f0f9ff;
+        color: #0369a1;
+        border: 1px solid #bae6fd;
+        padding: 3px 10px;
+        border-radius: 9999px;
         font-weight: 600;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         display: inline-block;
     }
     .badge-admin {
-        background-color: #f3e8ff;
+        background-color: #faf5ff;
         color: #6b21a8;
-        padding: 4px 10px;
-        border-radius: 20px;
+        border: 1px solid #e9d5ff;
+        padding: 3px 10px;
+        border-radius: 9999px;
         font-weight: 600;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         display: inline-block;
     }
 
     .gate-pass-box {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        color: white;
-        padding: 24px;
-        border-radius: 16px;
-        border: 1px solid #334155;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        background: #ffffff;
+        color: #0f172a;
+        padding: 20px 24px;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
 
     .ai-bubble {
         background: #f0fdf4;
-        border-left: 4px solid #16a34a;
-        padding: 14px 18px;
-        border-radius: 0 12px 12px 0;
+        border-left: 3px solid #16a34a;
+        padding: 12px 16px;
+        border-radius: 0 10px 10px 0;
         margin-bottom: 12px;
         color: #14532d;
+        font-size: 0.9rem;
     }
 
     .ai-bubble-blue {
         background: #f0f9ff;
-        border-left: 4px solid #0284c7;
-        padding: 14px 18px;
-        border-radius: 0 12px 12px 0;
+        border-left: 3px solid #0284c7;
+        padding: 12px 16px;
+        border-radius: 0 10px 10px 0;
         margin-bottom: 12px;
         color: #0c4a6e;
+        font-size: 0.9rem;
     }
 
     .profile-card {
-        background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+        background: #f8fafc;
         border: 1px solid #e2e8f0;
-        border-radius: 14px;
+        border-radius: 12px;
         padding: 14px 16px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
     }
 
-    /* Voice Assistant Hologram & Studio Styling */
+    /* Clean Voice Assistant Studio Styling */
     .voice-studio-container {
-        background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%);
-        border: 1px solid rgba(99, 102, 241, 0.35);
-        border-radius: 24px;
-        padding: 32px 24px;
-        color: white;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        margin-bottom: 20px;
         text-align: center;
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        margin-bottom: 24px;
-        position: relative;
-        overflow: hidden;
     }
-    .voice-studio-container::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 60%);
-        pointer-events: none;
-    }
-    .voice-orb-wrapper {
-        position: relative;
-        width: 140px;
-        height: 140px;
-        margin: 0 auto 20px auto;
+    .voice-mic-hero {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #eff6ff;
+        color: #2563eb;
+        border: 2px solid #bfdbfe;
+        margin: 0 auto 10px auto;
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-    .voice-orb {
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
-        background: radial-gradient(circle, #6366f1 0%, #3b82f6 50%, #1e1b4b 100%);
-        box-shadow: 0 0 35px rgba(99, 102, 241, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.4);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.2rem;
-        cursor: pointer;
-        transition: transform 0.3s, box-shadow 0.3s;
-        z-index: 2;
-    }
-    .voice-orb:hover {
-        transform: scale(1.08);
-        box-shadow: 0 0 50px rgba(99, 102, 241, 0.9), inset 0 0 25px rgba(255, 255, 255, 0.6);
-    }
-    .voice-pulse-ring {
-        position: absolute;
-        width: 130px;
-        height: 130px;
-        border-radius: 50%;
-        border: 2px solid rgba(99, 102, 241, 0.4);
-        animation: orb-pulse 2.2s infinite ease-out;
-        z-index: 1;
-    }
-    .voice-pulse-ring-2 {
-        position: absolute;
-        width: 160px;
-        height: 160px;
-        border-radius: 50%;
-        border: 1px dashed rgba(56, 189, 248, 0.3);
-        animation: orb-rotate 8s infinite linear;
-        z-index: 0;
-    }
-    @keyframes orb-pulse {
-        0% { transform: scale(0.7); opacity: 0.8; }
-        50% { opacity: 0.4; }
-        100% { transform: scale(1.3); opacity: 0; }
-    }
-    @keyframes orb-rotate {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    .sound-equalizer {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        height: 28px;
-        margin: 12px auto;
-    }
-    .sound-bar {
-        width: 4px;
-        height: 8px;
-        background: #38bdf8;
-        border-radius: 2px;
-        animation: sound-bounce 1.2s infinite ease-in-out;
-    }
-    .sound-bar:nth-child(2) { animation-delay: 0.2s; height: 16px; background: #6366f1; }
-    .sound-bar:nth-child(3) { animation-delay: 0.4s; height: 24px; background: #a855f7; }
-    .sound-bar:nth-child(4) { animation-delay: 0.6s; height: 18px; background: #38bdf8; }
-    .sound-bar:nth-child(5) { animation-delay: 0.8s; height: 10px; background: #6366f1; }
-    @keyframes sound-bounce {
-        0%, 100% { transform: scaleY(0.4); }
-        50% { transform: scaleY(1.4); }
+        font-size: 1.7rem;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
     }
     .voice-intent-badge {
-        background: rgba(99, 102, 241, 0.2);
-        color: #a5b4fc;
-        border: 1px solid rgba(99, 102, 241, 0.4);
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
+        background: #f1f5f9;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+        padding: 3px 10px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
         font-weight: 600;
         display: inline-block;
-        margin-right: 8px;
+        margin-right: 6px;
     }
     .spoken-bubble {
-        background: rgba(15, 23, 42, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-left: 4px solid #38bdf8;
-        border-radius: 0 12px 12px 0;
-        padding: 14px 18px;
-        margin: 12px 0;
-        color: #e2e8f0;
-        font-size: 0.95rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-left: 3px solid #2563eb;
+        border-radius: 0 10px 10px 0;
+        padding: 12px 16px;
+        margin: 10px 0;
+        color: #1e293b;
+        font-size: 0.92rem;
         line-height: 1.5;
         text-align: left;
     }
     .sustainability-card {
-        background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
-        color: white;
-        border-radius: 16px;
-        padding: 20px;
-        border: 1px solid #10b981;
-        box-shadow: 0 10px 25px rgba(6, 78, 59, 0.2);
+        background: #ffffff;
+        border: 1px solid #bbf7d0;
+        border-left: 4px solid #16a34a;
+        border-radius: 12px;
+        padding: 16px 18px;
+        color: #0f172a;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -393,17 +327,17 @@ if not st.session_state["authenticated"]:
     <div class="auth-hero-banner">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
-                <span class="badge-admin" style="background: rgba(255,255,255,0.15); color: #93c5fd; font-size: 0.85rem; padding: 6px 14px; margin-bottom: 10px;">
-                    ✨ AI-Powered Smart Campus Living
+                <span class="badge-info" style="margin-bottom: 8px;">
+                    ✨ AI-Powered Campus Housing
                 </span>
-                <h1 style="margin: 8px 0 6px 0; font-size: 2.2rem; font-weight: 800; color: white;">SmartHostel AI Management Portal</h1>
-                <p style="margin: 0; opacity: 0.9; font-size: 1rem; max-width: 680px; line-height: 1.5;">
-                    Intelligent Room Allocation, Real-time NLP Maintenance Triage, Digital QR Gate Passes, and Automated Curfew & Dining Analytics.
+                <h1 style="margin: 6px 0 4px 0; font-size: 1.85rem; font-weight: 800; color: #0f172a;">SmartHostel AI Platform</h1>
+                <p style="margin: 0; color: #475569; font-size: 0.95rem; max-width: 660px; line-height: 1.5;">
+                    Intelligent Room Allocation, NLP Maintenance Triage, Digital QR Gate Passes, and Next-Gen Voice Assistance.
                 </p>
             </div>
-            <div style="text-align: right; background: rgba(255,255,255,0.08); padding: 14px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);">
-                <div style="font-size: 1.1rem; font-weight: 700; color: #4ade80;">🟢 SYSTEM ONLINE</div>
-                <div style="font-size: 0.8rem; color: #cbd5e1;">Spring Boot & AI Engine Linked</div>
+            <div style="text-align: right; background: #f8fafc; padding: 12px 18px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <div style="font-size: 0.92rem; font-weight: 700; color: #16a34a;">🟢 SYSTEM ONLINE</div>
+                <div style="font-size: 0.78rem; color: #64748b;">Live Database Connected</div>
             </div>
         </div>
     </div>
@@ -773,12 +707,11 @@ if selected_menu == "📊 Dashboard Overview":
     st.markdown("""
     <div class="main-header">
         <div>
-            <h1 style="margin: 0; font-size: 1.8rem; font-weight: 700;">Hostel Command & Intelligence Dashboard</h1>
-            <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 0.95rem;">Real-time campus occupancy, AI maintenance status, and predictive analytics.</p>
+            <h1 style="margin: 0; font-size: 1.6rem; font-weight: 700; color: #0f172a;">Hostel Command & Intelligence Dashboard</h1>
+            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.9rem;">Real-time campus occupancy, AI maintenance status, and predictive analytics.</p>
         </div>
         <div style="text-align: right;">
-            <span class="badge-success" style="font-size: 0.85rem; padding: 6px 14px;">🟢 System Live & Nominal</span><br>
-            <span style="font-size: 0.8rem; opacity: 0.8;">Updated Just Now</span>
+            <span class="badge-success">🟢 System Live</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -974,26 +907,13 @@ if selected_menu == "📊 Dashboard Overview":
 elif selected_menu == "🎙️ Voice AI Command Center":
     st.markdown("""
     <div class="voice-studio-container">
-        <div class="voice-pulse-ring-2"></div>
-        <div class="voice-pulse-ring"></div>
-        <div class="voice-orb-wrapper">
-            <div class="voice-orb">
-                🎙️
-            </div>
-        </div>
-        <h2 style="margin: 0 0 6px 0; font-size: 2rem; font-weight: 800; color: white; letter-spacing: -0.5px;">
-            SmartHostel Advanced Voice AI Assistant
+        <div class="voice-mic-hero">🎙️</div>
+        <h2 style="margin: 0 0 4px 0; font-size: 1.6rem; font-weight: 700; color: #0f172a;">
+            SmartHostel Voice Assistant
         </h2>
-        <p style="margin: 0 auto; max-width: 650px; font-size: 0.95rem; opacity: 0.88; line-height: 1.5;">
-            Zero-latency, dual-mode speech engine: Speak directly through your microphone, test high-speed voice command buttons, or trigger instant voice emergency SOS broadcasts.
+        <p style="margin: 0 auto; max-width: 600px; font-size: 0.92rem; color: #64748b;">
+            Zero-latency speech engine. Record your voice, try quick scenario shortcuts, or trigger instant emergency SOS dispatch.
         </p>
-        <div class="sound-equalizer">
-            <div class="sound-bar"></div>
-            <div class="sound-bar"></div>
-            <div class="sound-bar"></div>
-            <div class="sound-bar"></div>
-            <div class="sound-bar"></div>
-        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1120,16 +1040,16 @@ elif selected_menu == "🎙️ Voice AI Command Center":
         if last_res:
             intent_label = last_res.get("intent", "GENERAL")
             st.markdown(f"""
-            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); margin-bottom: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <div>
-                        <span class="voice-intent-badge">🎯 Intent: {intent_label}</span>
-                        {'<span class="badge-urgent">⚡ Action Executed</span>' if last_res.get('action_taken') else '<span class="badge-info">ℹ️ Info Query</span>'}
+                        <span class="voice-intent-badge">Intent: {intent_label}</span>
+                        {'<span class="badge-urgent">Action Executed</span>' if last_res.get('action_taken') else '<span class="badge-info">Information</span>'}
                     </div>
-                    <span style="font-size: 0.8rem; color: #64748b;">Grounded Live DB</span>
+                    <span style="font-size: 0.78rem; color: #64748b;">Live DB Grounded</span>
                 </div>
                 <div class="spoken-bubble">
-                    <strong>🗣️ Spoken Voice Output:</strong><br>
+                    <strong>🗣️ Spoken Output:</strong><br>
                     "{last_res.get('spoken_text', '')}"
                 </div>
             </div>
@@ -1140,11 +1060,11 @@ elif selected_menu == "🎙️ Voice AI Command Center":
             if audio_b64:
                 autoplay_attr = "autoplay" if st.session_state.get("voice_auto_speak", True) else ""
                 audio_html = f"""
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; margin-bottom: 16px; text-align: center;">
-                    <span style="font-size: 0.85rem; color: #475569; font-weight: 600; display: block; margin-bottom: 8px;">
-                        🎧 High-Fidelity Voice Synthesis (gTTS Engine)
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: #475569; font-weight: 600; display: block; margin-bottom: 6px;">
+                        🎧 Audio Playback (High-Fidelity Neural TTS)
                     </span>
-                    <audio controls {autoplay_attr} style="width: 100%;">
+                    <audio controls {autoplay_attr} style="width: 100%; height: 36px;">
                         <source src="{audio_b64}" type="audio/mp3">
                         Your browser does not support the audio element.
                     </audio>
@@ -1159,10 +1079,10 @@ elif selected_menu == "🎙️ Voice AI Command Center":
 
         else:
             st.markdown("""
-            <div style="background: white; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 36px 20px; text-align: center; color: #64748b;">
-                <div style="font-size: 2.8rem; margin-bottom: 12px;">🎙️</div>
-                <h4 style="margin: 0 0 6px 0; color: #334155;">Voice Assistant Standby</h4>
-                <p style="margin: 0; font-size: 0.88rem;">
+            <div style="background: white; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 32px 20px; text-align: center; color: #64748b;">
+                <div style="font-size: 2.2rem; margin-bottom: 8px;">🎙️</div>
+                <h4 style="margin: 0 0 4px 0; color: #334155; font-size: 1.1rem;">Voice Assistant Standby</h4>
+                <p style="margin: 0; font-size: 0.85rem;">
                     Speak into the microphone or click any quick command on the left to hear real-time AI speech synthesis.
                 </p>
             </div>
@@ -1995,13 +1915,13 @@ elif selected_menu == "🏠 My Student Dashboard":
     st.markdown(f"""
     <div class="main-header">
         <div>
-            <h1 style="margin: 0; font-size: 1.8rem; font-weight: 700;">Welcome back, {sp.get('name', st.session_state['logged_user'])}!</h1>
-            <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 0.95rem;">
+            <h1 style="margin: 0; font-size: 1.6rem; font-weight: 700; color: #0f172a;">Welcome back, {sp.get('name', st.session_state['logged_user'])}!</h1>
+            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.9rem;">
                 Resident ID: <strong>{sp.get('student_id_code', 'STU')}</strong> • Department of {sp.get('department', 'Engineering')} (Year {sp.get('year', 1)})
             </p>
         </div>
         <div style="text-align: right;">
-            <span class="badge-success" style="font-size: 0.85rem; padding: 6px 14px;">Resident Status: Active</span>
+            <span class="badge-success">Resident: Active</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -2059,21 +1979,21 @@ elif selected_menu == "🏠 My Student Dashboard":
 
     # 🎙️ ADVANCED VOICE AI ASSISTANT & EMERGENCY SOS BANNER FOR STUDENT
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 16px; padding: 18px 24px; color: white; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-            <div style="display:flex; align-items:center; gap:14px;">
-                <div style="width:48px; height:48px; border-radius:50%; background:#6366f1; display:flex; align-items:center; justify-content:center; font-size:1.5rem; box-shadow:0 0 20px rgba(99,102,241,0.6);">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:50%; background:#eff6ff; color:#2563eb; display:flex; align-items:center; justify-content:center; font-size:1.3rem; border: 1px solid #bfdbfe;">
                     🎙️
                 </div>
                 <div>
-                    <h4 style="margin:0; color:#e0e7ff; font-size:1.15rem;">SmartHostel Voice Assistant Active</h4>
-                    <p style="margin:2px 0 0 0; font-size:0.85rem; color:#a5b4fc;">
-                        Hands-free voice queries, instant meal menus, maintenance dispatch, and emergency SOS alerts.
+                    <h4 style="margin:0; color:#0f172a; font-size:1.05rem; font-weight:700;">Voice Assistant & Quick Actions</h4>
+                    <p style="margin:2px 0 0 0; font-size:0.83rem; color:#64748b;">
+                        Hands-free voice queries, instant meal menus, maintenance tickets, and emergency SOS alerts.
                     </p>
                 </div>
             </div>
             <div>
-                <span class="badge-success" style="font-size:0.8rem;">● AI Voice Engine Online</span>
+                <span class="badge-success">● Voice Online</span>
             </div>
         </div>
     </div>
@@ -2543,13 +2463,13 @@ elif selected_menu == "🤖 AI Hostel Assistant (Chatbot)":
     st.markdown("""
     <div class="main-header">
         <div>
-            <h1 style="margin: 0; font-size: 1.8rem; font-weight: 700;">🤖 24x7 Intelligent Campus AI Assistant</h1>
-            <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 0.95rem;">
-                Autonomous RAG Engine grounded in real-time hostel databases, room pairings, gate passes, and mess schedules.
+            <h1 style="margin: 0; font-size: 1.6rem; font-weight: 700; color: #0f172a;">🤖 Intelligent Campus AI Assistant</h1>
+            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.9rem;">
+                Grounded in real-time hostel databases, room pairings, gate passes, and dining schedules.
             </p>
         </div>
         <div style="text-align: right;">
-            <span class="badge-success" style="font-size: 0.85rem; padding: 6px 14px;">🟢 Real-Time Database Grounded</span>
+            <span class="badge-success">🟢 Grounded Live DB</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
